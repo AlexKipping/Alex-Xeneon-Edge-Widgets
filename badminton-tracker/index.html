@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Badminton Tracker</title>
+    <link rel="icon" href="resources/icon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles/main.css" />
+
+    <!-- iCUE settings panel -->
+    <meta name="x-icue-property" content="nationality"
+          data-label="Nationalitet"
+          data-type="tab-buttons"
+          data-default="'DK'"
+          data-values="[{'key':'ALL','value':'Alle'},{'key':'DK','value':'DK'},{'key':'CN','value':'CN'},{'key':'JP','value':'JP'},{'key':'KR','value':'KR'},{'key':'ID','value':'ID'},{'key':'IN','value':'IN'}]" />
+
+    <meta name="x-icue-property" content="upcomingDays"
+          data-label="Dage frem"
+          data-type="slider"
+          data-default="7" data-min="1" data-max="14" data-step="1" data-unit-label="'d'" />
+
+    <meta name="x-icue-property" content="accentColor"
+          data-label="Accentfarve"
+          data-type="color"
+          data-default="'#4f8ef7'" />
+
+    <script type="application/json" id="x-icue-groups">
+    [
+        { "title": "Filter", "properties": ["nationality", "upcomingDays"] },
+        { "title": "Udseende", "properties": ["accentColor"] }
+    ]
+    </script>
+</head>
+<body>
+
+<header>
+    <span class="shuttle">🏸</span>
+    <h1>Badminton</h1>
+    <button id="refresh-btn" title="Opdater">↻</button>
+</header>
+
+<div id="live-section" class="section hidden">
+    <div class="section-label"><span class="live-dot"></span> Live</div>
+    <div id="live-list"></div>
+</div>
+
+<div id="upcoming-section" class="section">
+    <div class="section-label">Kommende</div>
+    <div id="upcoming-list">
+        <div class="state-msg loading">
+            <div class="spinner"></div>Henter kampe…
+        </div>
+    </div>
+</div>
+
+<footer>
+    <span id="updated"></span>
+    <span id="filter-badge"></span>
+</footer>
+
+<script src="scripts/main.js"></script>
+<script>
+    icueEvents = {
+        onICUEInitialized: start,
+        onDataUpdated: applyProps
+    };
+
+    if (typeof iCUE_initialized === 'undefined' || iCUE_initialized) start();
+</script>
+</body>
+</html>

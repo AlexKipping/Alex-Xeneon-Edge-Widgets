@@ -1,0 +1,27 @@
+{
+	"author": "Alex",
+	"id": "com.alex.badminton-tracker",
+	"name": "Badminton Tracker",
+	"description": "Upcoming BWF matches with live scores and nationality filter.",
+	"version": "1.0.0",
+	"preview_icon": "resources/icon.svg",
+	"min_app_version": "5.47",
+	"min_framework_version": "1.4.0",
+	"os": [
+		{
+			"platform": "windows"
+		}
+	],
+	"supported_devices": [
+		{
+			"type": "dashboard_lcd"
+		}
+	],
+	"interactive": true,
+	"permissions": [
+		{
+			"type": "url",
+			"domain": "api.sofascore.com"
+		}
+	]
+}
