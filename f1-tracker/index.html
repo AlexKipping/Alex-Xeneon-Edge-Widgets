@@ -1,0 +1,644 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>F1 Tracker</title>
+    <link rel="icon" type="image/svg+xml" href="resources/icon.svg" />
+
+    <!-- iCUE controls (settings panel) -->
+    <meta name="x-icue-property" content="startView"
+          data-label="'Start view'" data-type="tab-buttons"
+          data-default="'race'"
+          data-values="[{'key':'race','value':'Race'},{'key':'drivers','value':'Drivers'},{'key':'teams','value':'Teams'}]" />
+
+    <meta name="x-icue-property" content="showPictures"
+          data-label="'Show pictures'" data-type="switch" data-default="true" />
+
+    <meta name="x-icue-property" content="autoRotate"
+          data-label="'Rotate views automatically'" data-type="switch" data-default="false" />
+
+    <meta name="x-icue-property" content="rotateSeconds"
+          data-label="'Seconds per view'" data-type="slider"
+          data-default="15" data-min="5" data-max="60" data-step="5" data-unit-label="'s'" />
+
+    <meta name="x-icue-property" content="textColor"
+          data-label="'Text color'" data-type="color" data-default="'#FFFFFF'" />
+
+    <meta name="x-icue-property" content="accentColor"
+          data-label="'Accent color'" data-type="color" data-default="'#ff1801'" />
+
+    <script type="application/json" id="x-icue-groups">
+    [
+        { "title": "'Display'", "properties": ["startView", "showPictures", "autoRotate", "rotateSeconds"] },
+        { "title": "'Appearance'", "properties": ["textColor", "accentColor"] }
+    ]
+    </script>
+
+    <style>
+        :root {
+            --accent: #ff1801;
+            --neon: #00f2ff;
+            --text-main: #ffffff;
+            --text-sub: #a4a4ac;
+            --row-bg: rgba(0, 0, 0, 0.38);
+            --font-stack: "Bahnschrift", "Segoe UI", "Arial Narrow", Arial, sans-serif;
+            --tab-font: clamp(11px, 3.6vh, 20px);
+        }
+
+        * { box-sizing: border-box; }
+
+        html, body {
+            background: transparent;
+            margin: 0; padding: 0;
+            width: 100%; height: 100%;
+        }
+
+        body {
+            color: var(--text-main);
+            font-family: var(--font-stack);
+            overflow: hidden;
+            display: flex; flex-direction: column;
+            position: relative;
+            user-select: none;
+        }
+
+        /* --- Track --- */
+        #track-container {
+            position: absolute;
+            top: 56%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%; height: 62%;
+            z-index: 0;
+            display: flex; justify-content: center; align-items: center;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        body.view-standings #track-container { opacity: 0; }
+
+        #track-svg {
+            width: 100%; height: 100%;
+            fill: none;
+            stroke: var(--neon);
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            filter: drop-shadow(0 0 5px var(--neon)) drop-shadow(0 0 15px rgba(0, 242, 255, 0.4));
+            animation: pulsePath 4s ease-in-out infinite;
+        }
+
+        @keyframes pulsePath {
+            0% { opacity: 0.75; }
+            50% { opacity: 1; }
+            100% { opacity: 0.75; }
+        }
+
+        /* --- Header --- */
+        header {
+            padding: 1.6vh 3vw;
+            display: flex; justify-content: space-between; align-items: center; gap: 16px;
+            z-index: 10;
+            border-bottom: 2px solid var(--accent);
+            flex-shrink: 0;
+        }
+
+        .logo {
+            font-size: clamp(18px, 6vh, 34px);
+            font-weight: 900; font-style: italic; letter-spacing: -1px;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.7);
+        }
+        .logo span { color: var(--accent); }
+
+        .tabs { display: flex; gap: 6px; }
+        .tab {
+            font-family: inherit; font-size: var(--tab-font); font-weight: 700;
+            color: var(--text-main); background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.25); border-radius: 3px;
+            padding: 0.9vh 1.6vw; min-height: 36px; cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+        .round-pill {
+            font-size: clamp(10px, 2.8vh, 16px); font-weight: 700;
+            background: #fff; color: #000;
+            padding: 2px 8px; border-radius: 2px; text-transform: uppercase; letter-spacing: 1px;
+            min-width: 48px; text-align: center;
+        }
+
+        /* --- Views --- */
+        #main {
+            flex: 1 1 auto; min-height: 0;
+            z-index: 10; display: flex; flex-direction: column;
+            position: relative;
+        }
+        .view { display: none; flex: 1 1 auto; min-height: 0; }
+        .view.active { display: flex; }
+
+        /* --- Race view --- */
+        #view-race {
+            flex-direction: column;
+            align-items: center; justify-content: center; text-align: center;
+            padding: 2vh 3vw;
+        }
+
+        #pre-race { display: none; flex-direction: column; align-items: center; justify-content: space-between; flex: 1 1 auto; width: 100%; }
+
+        #race-name {
+            font-size: clamp(20px, 9vh, 72px); font-weight: 900; text-transform: uppercase;
+            font-style: italic; line-height: 1; margin-bottom: 1vh;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.8);
+        }
+        #race-loc {
+            font-size: clamp(11px, 3.4vh, 22px); color: #e4e4e8; text-transform: uppercase;
+            letter-spacing: 2px; font-weight: 600;
+            background: rgba(0,0,0,0.5); padding: 4px 10px; border-radius: 4px;
+        }
+
+        .timer-row { display: flex; gap: 3vw; margin-top: auto; margin-bottom: 2vh; }
+        .t-unit { display: flex; flex-direction: column; align-items: center; min-width: 8vh; }
+        .t-val {
+            font-size: clamp(30px, 15vh, 110px); font-weight: 700; font-variant-numeric: tabular-nums;
+            line-height: 1; text-shadow: 0 0 10px rgba(255,255,255,0.3), 0 2px 8px rgba(0,0,0,0.7);
+        }
+        .t-label { font-size: clamp(10px, 2.8vh, 16px); text-transform: uppercase; color: var(--accent); margin-top: 0.6vh; font-weight: 700; letter-spacing: 1px; }
+
+        #live-box { display: none; flex-direction: column; align-items: center; }
+        .live-tag {
+            background: var(--accent); color: #fff; font-size: clamp(11px, 3.4vh, 20px); font-weight: 900;
+            padding: 4px 12px; border-radius: 2px; animation: pulse 1s infinite; margin-bottom: 1.6vh;
+            text-transform: uppercase;
+        }
+        .lap-count { font-size: clamp(36px, 16vh, 120px); font-weight: 900; font-style: italic; line-height: 0.9; text-shadow: 0 2px 8px rgba(0,0,0,0.7); }
+        .lap-sub { font-size: clamp(10px, 2.8vh, 16px); color: var(--text-sub); letter-spacing: 2px; text-transform: uppercase; margin-top: 0.8vh; }
+
+        .message { font-size: clamp(12px, 3.6vh, 20px); color: var(--text-sub); text-shadow: 0 1px 4px rgba(0,0,0,0.8); }
+
+        /* --- Standings view --- */
+        #view-standings { flex-direction: column; padding: 1.2vh 3vw 1.6vh; }
+
+        .st-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 1vh; flex-shrink: 0; gap: 12px; }
+        .st-title { font-size: clamp(14px, 4.6vh, 28px); font-weight: 900; font-style: italic; text-shadow: 0 2px 8px rgba(0,0,0,0.7); }
+        .st-sub { font-size: clamp(10px, 2.8vh, 16px); color: var(--text-sub); letter-spacing: 1px; text-shadow: 0 1px 4px rgba(0,0,0,0.8); }
+
+        #st-list {
+            flex: 1 1 auto; min-height: 0;
+            display: grid;
+            grid-auto-flow: column;
+            gap: 6px;
+            align-content: safe center;
+            overflow-y: auto;
+            scrollbar-width: none;
+        }
+        #st-list::-webkit-scrollbar { display: none; }
+        #st-list > .message { grid-column: 1 / -1; align-self: center; text-align: center; }
+
+        .row {
+            display: flex; align-items: center; gap: 10px;
+            background: var(--row-bg);
+            border-left: 4px solid var(--tc, #666);
+            border-radius: 2px;
+            padding: 0 12px 0 8px;
+            min-width: 0;
+            height: var(--rh, 40px);
+        }
+        .row .pos {
+            width: 1.6em; flex: 0 0 auto; text-align: right;
+            font-size: clamp(14px, calc(var(--rh, 40px) * 0.4), 28px);
+            font-weight: 900; font-style: italic; font-variant-numeric: tabular-nums;
+        }
+        .row.p1 .pos { color: var(--accent); }
+        .row .who { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; justify-content: center; line-height: 1.1; }
+        .row .nm { font-size: clamp(11px, calc(var(--rh, 40px) * 0.36), 24px); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .row .tm { font-size: clamp(10px, calc(var(--rh, 40px) * 0.24), 15px); color: var(--text-sub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .row .pts { flex: 0 0 auto; font-size: clamp(13px, calc(var(--rh, 40px) * 0.38), 26px); font-weight: 700; font-variant-numeric: tabular-nums; }
+        .row .pts small { font-size: 0.55em; color: var(--text-sub); font-weight: 600; margin-left: 3px; }
+
+        #st-list.compact .tm { display: none; }
+        #st-list.tight .row { gap: 6px; padding: 0 8px 0 6px; }
+        #st-list.tight .pts small { display: none; }
+
+        .pic {
+            flex: 0 0 auto;
+            width: calc(var(--rh, 40px) - 10px); height: calc(var(--rh, 40px) - 10px);
+            border-radius: 50%;
+            background: rgba(255,255,255,0.08); border: 2px solid var(--tc, #666);
+            overflow: hidden; display: flex; align-items: center; justify-content: center;
+            font-size: clamp(9px, calc(var(--rh, 40px) * 0.24), 15px); font-weight: 700; color: var(--text-sub);
+        }
+        .pic img { width: 100%; height: 100%; object-fit: cover; object-position: center 15%; display: block; }
+        .pic.logo { border-radius: 6px; border: 0; background: rgba(255,255,255,0.92); padding: 4px; width: calc((var(--rh, 40px) - 10px) * 1.3); }
+        .pic.logo img { object-fit: contain; object-position: center; }
+        #st-list.no-pics .pic { display: none; }
+
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        @media (prefers-reduced-motion: reduce) { #track-svg, .live-tag { animation: none; } }
+    </style>
+</head>
+<body>
+
+<div id="track-container">
+    <svg id="track-svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
+        <path id="track-path" d="" />
+    </svg>
+</div>
+
+<header>
+    <div class="logo">F1<span>NEXT</span></div>
+    <nav class="tabs" aria-label="View">
+        <button class="tab active" data-view="race">Next Race</button>
+        <button class="tab" data-view="drivers">Drivers</button>
+        <button class="tab" data-view="teams">Teams</button>
+    </nav>
+    <div id="round" class="round-pill">--</div>
+</header>
+
+<div id="main">
+    <div id="view-race" class="view active">
+        <div id="loading" class="message">Initializing Telemetry...</div>
+
+        <div id="pre-race">
+            <div>
+                <div id="race-name">Loading...</div>
+                <div id="race-loc">Loading...</div>
+            </div>
+            <div class="timer-row">
+                <div class="t-unit"><span class="t-val" id="d">00</span><span class="t-label">Days</span></div>
+                <div class="t-unit"><span class="t-val" id="h">00</span><span class="t-label">Hrs</span></div>
+                <div class="t-unit"><span class="t-val" id="m">00</span><span class="t-label">Min</span></div>
+            </div>
+        </div>
+
+        <div id="live-box">
+            <div class="live-tag">Race in Progress</div>
+            <div class="lap-count">LAP <span id="cur-lap">1</span>/<span id="tot-lap">--</span></div>
+            <div class="lap-sub">Estimated</div>
+        </div>
+    </div>
+
+    <div id="view-standings" class="view">
+        <div class="st-head">
+            <div class="st-title" id="st-title">Drivers' Championship</div>
+            <div class="st-sub" id="st-sub"></div>
+        </div>
+        <div id="st-list"></div>
+    </div>
+</div>
+
+<script>
+    const BASE = "https://api.jolpi.ca/ergast/f1/current";
+    const API_NEXT = BASE + "/next.json";
+    const API_DRIVERS = BASE + "/driverStandings.json";
+    const API_TEAMS = BASE + "/constructorStandings.json";
+
+    const TRACK_PATHS = {
+        "bahrain": "M30,70 L25,65 L25,60 L30,55 L40,55 L45,50 L55,50 L60,55 L65,50 L75,50 L80,55 L80,65 L75,70 L65,70 L60,75 L50,75 L45,80 L30,80 Z",
+        "jeddah": "M20,20 Q30,15 40,20 T60,30 T80,40 Q85,50 80,60 T60,80 T40,85 Q20,80 20,70 Z",
+        "albert_park": "M30,30 L70,30 L80,40 L70,60 L60,60 L50,70 L40,70 L30,60 Z",
+        "suzuka": "M20,60 C20,40 40,40 50,50 C60,60 80,60 80,40 C80,20 60,20 50,30 C40,40 20,40 20,60 Z",
+        "miami": "M20,50 L30,40 L50,40 L60,30 L70,30 L80,40 L80,60 L70,70 L60,70 L50,80 L40,80 L30,70 L20,70 Z",
+        "monaco": "M40,30 L60,30 L65,40 L60,50 L65,60 L60,70 L50,70 L45,60 L40,60 L35,50 L40,40 Z",
+        "villeneuve": "M20,40 L80,40 L85,50 L80,60 L20,60 L15,50 Z",
+        "silverstone": "M40,20 L60,20 L70,30 L75,50 L70,70 L60,80 L40,80 L30,70 L25,50 L30,30 Z",
+        "red_bull_ring": "M30,60 L40,40 L60,40 L70,50 L60,70 L40,70 Z",
+        "spa": "M30,70 L40,60 L50,60 L60,50 L70,50 L80,60 L70,80 L50,80 L30,70 Z",
+        "monza": "M20,50 L80,50 L85,60 L80,70 L20,70 L15,60 Z",
+        "marina_bay": "M20,30 L80,30 L80,70 L60,70 L60,60 L40,60 L40,70 L20,70 Z",
+        "americas": "M20,50 L30,30 L50,30 L60,40 L70,40 L80,50 L70,70 L50,70 L40,60 L30,60 Z",
+        "vegas": "M20,20 L80,20 L80,40 L60,40 L60,60 L80,60 L80,80 L20,80 Z",
+        "yas_marina": "M20,40 L40,40 L40,30 L60,30 L60,40 L80,40 L80,60 L60,60 L60,70 L40,70 L40,60 L20,60 Z",
+        "generic": "M20,50 Q20,20 50,20 T80,50 T50,80 T20,50"
+    };
+
+    const TEAM_COLORS = {
+        "mercedes": "#27f4d2", "ferrari": "#e8002d", "mclaren": "#ff8000", "red_bull": "#3671c6",
+        "williams": "#64c4ff", "aston_martin": "#229971", "alpine": "#ff87bc", "rb": "#6692ff",
+        "haas": "#b6babd", "sauber": "#52e252", "audi": "#c0c0c0", "cadillac": "#8a8d8f"
+    };
+    const teamColor = id => TEAM_COLORS[id] || "#777777";
+
+    const UI = {
+        path: document.getElementById('track-path'),
+        loading: document.getElementById('loading'),
+        preRace: document.getElementById('pre-race'),
+        liveBox: document.getElementById('live-box'),
+        name: document.getElementById('race-name'),
+        loc: document.getElementById('race-loc'),
+        round: document.getElementById('round'),
+        timerRow: document.querySelector('.timer-row'),
+        timer: { d: document.getElementById('d'), h: document.getElementById('h'), m: document.getElementById('m') },
+        lap: { cur: document.getElementById('cur-lap'), tot: document.getElementById('tot-lap') },
+        tabs: Array.from(document.querySelectorAll('.tab')),
+        viewRace: document.getElementById('view-race'),
+        viewStandings: document.getElementById('view-standings'),
+        stTitle: document.getElementById('st-title'),
+        stSub: document.getElementById('st-sub'),
+        stList: document.getElementById('st-list')
+    };
+
+    // Read an iCUE control value (global variable injected by iCUE), with a fallback for browser previews.
+    function prop(name, fallback) {
+        try {
+            if (Object.prototype.hasOwnProperty.call(window, name)) {
+                const v = window[name];
+                if (v !== undefined && v !== null && v !== "") return v;
+            }
+            const v2 = Function('return typeof ' + name + ' !== "undefined" ? ' + name + ' : undefined')();
+            if (v2 !== undefined && v2 !== null && v2 !== "") return v2;
+        } catch (e) { /* ignore */ }
+        return fallback;
+    }
+
+    let raceTime = null, raceTitle = "", tickTimer = null;
+    let standings = { drivers: null, teams: null, error: false };
+    let currentView = 'race';
+    let lastStartView = null;
+    let started = false;
+
+    /* ---------------- Views ---------------- */
+
+    const VIEWS = ['race', 'drivers', 'teams'];
+
+    function setView(v) {
+        if (!VIEWS.includes(v)) v = 'race';
+        currentView = v;
+        UI.tabs.forEach(t => t.classList.toggle('active', t.dataset.view === v));
+        const isRace = v === 'race';
+        UI.viewRace.classList.toggle('active', isRace);
+        UI.viewStandings.classList.toggle('active', !isRace);
+        document.body.classList.toggle('view-standings', !isRace);
+        if (!isRace) renderStandings();
+    }
+
+    UI.tabs.forEach(t => t.addEventListener('click', () => {
+        setView(t.dataset.view);
+        restartRotation();
+    }));
+
+    let rotateTimer = null;
+    function restartRotation() {
+        clearInterval(rotateTimer);
+        rotateTimer = null;
+        if (!prop('autoRotate', false)) return;
+        const secs = Math.max(5, Number(prop('rotateSeconds', 15)) || 15);
+        rotateTimer = setInterval(() => {
+            setView(VIEWS[(VIEWS.indexOf(currentView) + 1) % VIEWS.length]);
+        }, secs * 1000);
+    }
+
+    function applyProps() {
+        const root = document.documentElement.style;
+        root.setProperty('--text-main', prop('textColor', '#FFFFFF'));
+        root.setProperty('--accent', prop('accentColor', '#ff1801'));
+        UI.stList.classList.toggle('no-pics-opt', prop('showPictures', true) === false);
+
+        const sv = prop('startView', 'race');
+        if (sv !== lastStartView) {
+            lastStartView = sv;
+            setView(sv);
+        } else if (currentView !== 'race') {
+            renderStandings();
+        }
+        restartRotation();
+    }
+
+    /* ---------------- Race ---------------- */
+
+    async function loadRace() {
+        try {
+            const res = await fetch(API_NEXT);
+            const data = await res.json();
+            if (!data.MRData || !data.MRData.RaceTable.Races.length) {
+                if (!raceTime) UI.loading.textContent = "Season Finished";
+                return;
+            }
+            setupRace(data.MRData.RaceTable.Races[0]);
+        } catch (e) {
+            console.warn("Race data unavailable", e);
+            if (!raceTime) UI.loading.textContent = "Connection Lost";
+        }
+    }
+
+    function setupRace(race) {
+        UI.loading.style.display = 'none';
+        raceTitle = race.raceName.replace("Grand Prix", "GP");
+        UI.name.textContent = raceTitle;
+
+        const d = new Date(`${race.date}T${race.time || "12:00:00Z"}`);
+        const dateStr = d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+        const timeStr = d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+        UI.loc.textContent = `${race.Circuit.Location.locality} | ${dateStr} ${timeStr}`;
+        UI.round.textContent = `RD ${race.round}`;
+        UI.path.setAttribute("d", TRACK_PATHS[race.Circuit.circuitId] || TRACK_PATHS["generic"]);
+
+        raceTime = d;
+        clearInterval(tickTimer);
+        tickTimer = setInterval(tick, 1000);
+        tick();
+    }
+
+    function tick() {
+        if (!raceTime) return;
+        const diff = raceTime - new Date();
+
+        if (diff > 0) {
+            UI.preRace.style.display = 'flex';
+            UI.liveBox.style.display = 'none';
+            UI.timerRow.style.display = 'flex';
+            UI.name.textContent = raceTitle;
+
+            UI.timer.d.textContent = Math.floor(diff / 86400000);
+            UI.timer.h.textContent = Math.floor((diff % 86400000) / 3600000);
+            UI.timer.m.textContent = Math.floor((diff % 3600000) / 60000);
+        } else if (diff > -9000000) {
+            UI.preRace.style.display = 'none';
+            UI.liveBox.style.display = 'flex';
+            const est = Math.ceil(Math.abs(diff) / 95000);
+            UI.lap.cur.textContent = Math.min(est, 60);
+            UI.lap.tot.textContent = 60;
+        } else {
+            UI.preRace.style.display = 'flex';
+            UI.liveBox.style.display = 'none';
+            UI.name.textContent = "FINISHED";
+            UI.timerRow.style.display = 'none';
+        }
+    }
+
+    /* ---------------- Standings ---------------- */
+
+    async function loadStandings() {
+        try {
+            const [dRes, tRes] = await Promise.all([fetch(API_DRIVERS), fetch(API_TEAMS)]);
+            const [dData, tData] = await Promise.all([dRes.json(), tRes.json()]);
+            const dList = dData.MRData.StandingsTable.StandingsLists[0];
+            const tList = tData.MRData.StandingsTable.StandingsLists[0];
+            standings.drivers = dList ? { season: dList.season, round: dList.round, rows: dList.DriverStandings } : { rows: [] };
+            standings.teams = tList ? { season: tList.season, round: tList.round, rows: tList.ConstructorStandings } : { rows: [] };
+            standings.error = false;
+        } catch (e) {
+            console.warn("Standings unavailable", e);
+            standings.error = true;   // keep last known data, if any
+        }
+        if (currentView !== 'race') renderStandings();
+    }
+
+    function esc(s) {
+        return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    function layoutStandings(n) {
+        const list = UI.stList;
+        const W = list.clientWidth, H = list.clientHeight;
+        if (!W || !H || !n) return;
+        const gap = 6, minRow = 24, maxRow = 92, minCol = 190;
+
+        const rowsFit = Math.max(1, Math.floor((H + gap) / (minRow + gap)));
+        const maxCols = Math.max(1, Math.floor((W + gap) / (minCol + gap)));
+        let cols = Math.ceil(n / rowsFit);
+        cols = Math.max(cols, Math.min(maxCols, Math.round(W / 380)));
+        cols = Math.max(1, Math.min(cols, maxCols, n));
+        const rows = Math.ceil(n / cols);
+        const rh = Math.max(minRow, Math.min(maxRow, Math.floor((H - gap * (rows - 1)) / rows)));
+
+        list.style.setProperty('--rh', rh + 'px');
+        list.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
+        list.style.gridTemplateRows = `repeat(${rows}, ${rh}px)`;
+        list.classList.toggle('compact', rh < 46);
+        list.classList.toggle('tight', rh < 32);
+        list.classList.toggle('no-pics', rh < 36 || list.classList.contains('no-pics-opt'));
+    }
+
+    function renderStandings() {
+        const isDrivers = currentView === 'drivers';
+        UI.stTitle.textContent = isDrivers ? "Drivers' Championship" : "Constructors' Championship";
+        const data = isDrivers ? standings.drivers : standings.teams;
+
+        if (!data) {
+            UI.stSub.textContent = "";
+            UI.stList.style.gridTemplateColumns = "1fr";
+            UI.stList.style.gridTemplateRows = "auto";
+            UI.stList.innerHTML = `<div class="message">${standings.error ? "Connection Lost" : "Loading standings..."}</div>`;
+            return;
+        }
+        if (!data.rows.length) {
+            UI.stSub.textContent = "";
+            UI.stList.style.gridTemplateColumns = "1fr";
+            UI.stList.style.gridTemplateRows = "auto";
+            UI.stList.innerHTML = `<div class="message">No standings available yet</div>`;
+            return;
+        }
+
+        UI.stSub.textContent = `${data.season} season | After round ${data.round}` + (standings.error ? " | offline" : "");
+
+        UI.stList.innerHTML = data.rows.map(r => {
+            const pos = r.position || r.positionText || "-";
+            const pts = esc(r.points);
+            const wins = esc(r.wins);
+            if (isDrivers) {
+                const team = (r.Constructors && r.Constructors[r.Constructors.length - 1]) || {};
+                const init = esc((r.Driver.code || r.Driver.familyName.slice(0, 3)).toUpperCase());
+                return `<div class="row ${pos === '1' ? 'p1' : ''}" style="--tc:${teamColor(team.constructorId)}">
+                    <div class="pos">${esc(pos)}</div>
+                    <div class="pic" data-wiki="${esc(r.Driver.url)}">${init}</div>
+                    <div class="who"><span class="nm">${esc(r.Driver.familyName)}</span><span class="tm">${esc(r.Driver.givenName)} | ${esc(team.name)}</span></div>
+                    <div class="pts">${pts}<small>PTS</small></div>
+                </div>`;
+            }
+            const c = r.Constructor;
+            return `<div class="row ${pos === '1' ? 'p1' : ''}" style="--tc:${teamColor(c.constructorId)}">
+                <div class="pos">${esc(pos)}</div>
+                <div class="pic logo" data-wiki="${esc(c.url)}">${esc(c.name.slice(0, 3).toUpperCase())}</div>
+                <div class="who"><span class="nm">${esc(c.name)}</span><span class="tm">${wins} ${wins === '1' ? 'win' : 'wins'}</span></div>
+                <div class="pts">${pts}<small>PTS</small></div>
+            </div>`;
+        }).join("");
+
+        layoutStandings(data.rows.length);
+        loadPictures();
+    }
+
+    if (typeof ResizeObserver !== 'undefined') {
+        new ResizeObserver(() => {
+            if (currentView === 'race') return;
+            const data = currentView === 'drivers' ? standings.drivers : standings.teams;
+            if (data && data.rows.length) layoutStandings(data.rows.length);
+        }).observe(UI.stList);
+    }
+
+    /* ---------------- Pictures (Wikipedia thumbnails) ---------------- */
+
+    const PIC_TTL = 7 * 24 * 3600 * 1000;
+    const picMem = {};
+
+    function wikiTitle(url) {
+        try { return new URL(url).pathname.split('/').pop(); } catch (e) { return null; }
+    }
+
+    function picCacheGet(title) {
+        if (picMem[title] !== undefined) return picMem[title];
+        try {
+            const raw = localStorage.getItem('f1pic:' + title);
+            if (raw) {
+                const o = JSON.parse(raw);
+                if (Date.now() - o.t < PIC_TTL) return (picMem[title] = o.u);
+            }
+        } catch (e) { /* storage unavailable */ }
+        return undefined;
+    }
+
+    function picCacheSet(title, url) {
+        picMem[title] = url;
+        try { localStorage.setItem('f1pic:' + title, JSON.stringify({ u: url, t: Date.now() })); } catch (e) { /* ignore */ }
+    }
+
+    async function fetchPic(title) {
+        const cached = picCacheGet(title);
+        if (cached !== undefined) return cached;
+        try {
+            const res = await fetch('https://en.wikipedia.org/api/rest_v1/page/summary/' + title);
+            if (!res.ok) throw new Error(res.status);
+            const j = await res.json();
+            const u = (j.thumbnail && j.thumbnail.source) || null;
+            picCacheSet(title, u);
+            return u;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function loadPictures() {
+        UI.stList.querySelectorAll('.pic[data-wiki]').forEach(async el => {
+            const title = wikiTitle(el.dataset.wiki);
+            if (!title) return;
+            const src = await fetchPic(title);
+            if (!src || !el.isConnected) return;
+            const img = new Image();
+            img.alt = "";
+            img.referrerPolicy = "no-referrer";
+            img.onload = () => { if (el.isConnected) { el.textContent = ""; el.appendChild(img); } };
+            img.src = src;
+        });
+    }
+
+    /* ---------------- Boot ---------------- */
+
+    function start() {
+        if (started) return;
+        started = true;
+        applyProps();
+        loadRace();
+        loadStandings();
+        setInterval(loadStandings, 10 * 60 * 1000);
+        setInterval(loadRace, 30 * 60 * 1000);
+    }
+
+    icueEvents = {
+        onICUEInitialized: start,
+        onDataUpdated: applyProps
+    };
+
+    // In iCUE the flag is injected before this script runs. Outside iCUE (browser preview) start directly.
+    if (typeof iCUE_initialized === 'undefined' || iCUE_initialized) start();
+</script>
+</body>
+</html>
