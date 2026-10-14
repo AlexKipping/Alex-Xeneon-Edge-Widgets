@@ -1,18 +1,13 @@
 {
-    "en": {
-        "Badminton Tracker": "Badminton Tracker",
-        "Nationalitet": "Nationality",
-        "Dage frem": "Days ahead",
-        "Accentfarve": "Accent color",
-        "Filter": "Filter",
-        "Udseende": "Appearance"
-    },
-    "da": {
-        "Badminton Tracker": "Badminton Tracker",
-        "Nationalitet": "Nationalitet",
-        "Dage frem": "Dage frem",
-        "Accentfarve": "Accentfarve",
-        "Filter": "Filter",
-        "Udseende": "Udseende"
-    }
+  "widget_name": "Badminton Tracker",
+  "Badminton Tracker": "Badminton Tracker",
+  "Parse.bot API key": "Parse.bot API key",
+  "Refresh every (min)": "Refresh every (min)",
+  "Nationality": "Nationality",
+  "Start view": "Start view",
+  "Accent color": "Accent color",
+  "Header line color": "Header line color",
+  "Data": "Data",
+  "Filter": "Filter",
+  "Appearance": "Appearance"
 }
