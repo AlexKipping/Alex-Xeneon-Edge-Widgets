@@ -1,6 +1,6 @@
 # Xeneon-Widgets
 
-Custom iCUE widgets for the Corsair XENEON EDGE.
+Custom iCUE widgets for the Corsair XENEON EDGE. Created with Claude.
 
 | Widget | Description |
 | --- | --- |
