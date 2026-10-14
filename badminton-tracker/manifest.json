@@ -21,7 +21,7 @@
 	"permissions": [
 		{
 			"type": "url",
-			"domain": "api.sofascore.com"
+			"domain": "api.parse.bot"
 		}
 	]
 }

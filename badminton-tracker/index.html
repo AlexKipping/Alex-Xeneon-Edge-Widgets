@@ -1,61 +1,86 @@
 <!DOCTYPE html>
-<html lang="da">
+<html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Badminton Tracker</title>
+    <title>tr('Badminton Tracker')</title>
     <link rel="icon" href="resources/icon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="styles/main.css" />
 
     <!-- iCUE settings panel -->
-    <meta name="x-icue-property" content="nationality"
-          data-label="Nationalitet"
-          data-type="tab-buttons"
-          data-default="'DK'"
-          data-values="[{'key':'ALL','value':'Alle'},{'key':'DK','value':'DK'},{'key':'CN','value':'CN'},{'key':'JP','value':'JP'},{'key':'KR','value':'KR'},{'key':'ID','value':'ID'},{'key':'IN','value':'IN'}]" />
+    <meta name="x-icue-property" content="apiKey"
+          data-label="tr('Parse.bot API key')"
+          data-type="textfield"
+          data-default="''" />
 
-    <meta name="x-icue-property" content="upcomingDays"
-          data-label="Dage frem"
+    <meta name="x-icue-property" content="startView"
+          data-label="tr('Start view')"
+          data-type="tab-buttons"
+          data-default="'matches'"
+          data-values="[{'key':'matches','value':'Matches'},{'key':'tournaments','value':'Tournaments'}]" />
+
+    <meta name="x-icue-property" content="nationality"
+          data-label="tr('Nationality')"
+          data-type="tab-buttons"
+          data-default="'ALL'"
+          data-values="[{'key':'ALL','value':'All'},{'key':'DEN','value':'DEN'},{'key':'CHN','value':'CHN'},{'key':'JPN','value':'JPN'},{'key':'KOR','value':'KOR'},{'key':'INA','value':'INA'}]" />
+
+    <meta name="x-icue-property" content="refreshMinutes"
+          data-label="tr('Refresh every (min)')"
           data-type="slider"
-          data-default="7" data-min="1" data-max="14" data-step="1" data-unit-label="'d'" />
+          data-default="180" data-min="15" data-max="720" data-step="15" data-unit-label="'min'" />
+
+    <meta name="x-icue-property" content="lineColor"
+          data-label="tr('Header line color')"
+          data-type="color"
+          data-default="'#4f8ef7'" />
 
     <meta name="x-icue-property" content="accentColor"
-          data-label="Accentfarve"
+          data-label="tr('Accent color')"
           data-type="color"
           data-default="'#4f8ef7'" />
 
     <script type="application/json" id="x-icue-groups">
     [
-        { "title": "Filter", "properties": ["nationality", "upcomingDays"] },
-        { "title": "Udseende", "properties": ["accentColor"] }
+        { "title": "tr('Data')", "properties": ["apiKey", "refreshMinutes"] },
+        { "title": "tr('Filter')", "properties": ["startView", "nationality"] },
+        { "title": "tr('Appearance')", "properties": ["accentColor", "lineColor"] }
     ]
     </script>
 </head>
 <body>
 
 <header>
-    <span class="shuttle">🏸</span>
-    <h1>Badminton</h1>
-    <button id="refresh-btn" title="Opdater">↻</button>
+    <div class="logo">Badminton <span>Tracker</span></div>
+    <nav class="tabs" aria-label="View">
+        <button class="tab active" data-view="matches">Matches</button>
+        <button class="tab" data-view="tournaments">Tournaments</button>
+    </nav>
+    <button id="refresh-btn" title="Refresh"><span>&#8635;</span></button>
 </header>
 
-<div id="live-section" class="section hidden">
-    <div class="section-label"><span class="live-dot"></span> Live</div>
-    <div id="live-list"></div>
-</div>
-
-<div id="upcoming-section" class="section">
-    <div class="section-label">Kommende</div>
-    <div id="upcoming-list">
-        <div class="state-msg loading">
-            <div class="spinner"></div>Henter kampe…
+<main>
+    <div id="upcoming-section" class="section">
+        <div class="section-label" id="list-label">Active / Upcoming</div>
+        <div id="upcoming-list" class="list">
+            <div class="state-msg loading">
+                <div class="spinner"></div>Loading matches...
+            </div>
         </div>
     </div>
-</div>
+
+    <div id="tomorrow-section" class="section hidden">
+        <div class="section-label" id="tomorrow-label">Tomorrow</div>
+        <div id="tomorrow-list" class="list"></div>
+    </div>
+    <div id="results-section" class="section hidden">
+        <div class="section-label" id="results-label">Results</div>
+        <div id="results-list" class="list"></div>
+    </div>
+</main>
 
 <footer>
     <span id="updated"></span>
-    <span id="filter-badge"></span>
 </footer>
 
 <script src="scripts/main.js"></script>
