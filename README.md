@@ -11,9 +11,12 @@ Custom iCUE widgets for the Corsair XENEON EDGE.
 
 Go to releases. Download .icuewidget file. Import in iCUE
 
+- [Badminton Tracker v1.0.0](https://github.com/AlexKipping/Alex-Xeneon-Edge-Widgets/releases/tag/badminton-tracker-v1.0.0)
+- [F1 Tracker v1.0.0](https://github.com/AlexKipping/Alex-Xeneon-Edge-Widgets/releases/tag/f1-tracker-v1.0.0)
+
 ## Badminton Tracker setup
 
-The Badminton Tracker needs a free [Parse.bot](https://parse.bot) account, because it reads BWF data through the Parse.bot BWF Badminton API.
+Download the widget from the [Badminton Tracker v1.0.0 release](https://github.com/AlexKipping/Alex-Xeneon-Edge-Widgets/releases/tag/badminton-tracker-v1.0.0). It needs a free [Parse.bot](https://parse.bot) account, because it reads BWF data through the Parse.bot BWF Badminton API.
 
 1. Create a Parse.bot account and copy your API key.
 2. Import the widget in iCUE and paste the key into the widget setting **Parse.bot API key** (under Data).
