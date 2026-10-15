@@ -27,7 +27,7 @@
           data-label="tr('Text color')" data-type="color" data-default="'#FFFFFF'" />
 
     <meta name="x-icue-property" content="accentColor"
-          data-label="tr('Accent color')" data-type="color" data-default="'#ff1801'" />
+          data-label="tr('Accent color')" data-type="color" data-default="'#e10600'" />
 
     <script type="application/json" id="x-icue-groups">
     [
@@ -39,14 +39,8 @@
 </head>
 <body>
 
-<div id="track-container">
-    <svg id="track-svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
-        <path id="track-path" d="" />
-    </svg>
-</div>
-
 <header>
-    <div class="logo">F1<span>NEXT</span></div>
+    <div class="logo">F1 <span>Tracker</span></div>
     <nav class="tabs" aria-label="View">
         <button class="tab active" data-view="race">Next Race</button>
         <button class="tab" data-view="drivers">Drivers</button>
@@ -60,21 +54,28 @@
         <div id="loading" class="message">Initializing Telemetry...</div>
 
         <div id="pre-race">
-            <div>
+            <div class="race-head">
                 <div id="race-name">Loading...</div>
                 <div id="race-loc">Loading...</div>
+                <div id="race-date"></div>
             </div>
+
+            <div id="track-container">
+                <svg id="track-svg" viewBox="14.5 14.5 71 71" preserveAspectRatio="xMidYMid meet">
+                    <path id="track-path" d="" />
+                </svg>
+                <div id="live-box">
+                    <div class="live-tag">Race in Progress</div>
+                    <div class="lap-count">LAP <span id="cur-lap">1</span>/<span id="tot-lap">--</span></div>
+                    <div class="lap-sub">Estimated</div>
+                </div>
+            </div>
+
             <div class="timer-row">
                 <div class="t-unit"><span class="t-val" id="d">00</span><span class="t-label">Days</span></div>
                 <div class="t-unit"><span class="t-val" id="h">00</span><span class="t-label">Hrs</span></div>
                 <div class="t-unit"><span class="t-val" id="m">00</span><span class="t-label">Min</span></div>
             </div>
-        </div>
-
-        <div id="live-box">
-            <div class="live-tag">Race in Progress</div>
-            <div class="lap-count">LAP <span id="cur-lap">1</span>/<span id="tot-lap">--</span></div>
-            <div class="lap-sub">Estimated</div>
         </div>
     </div>
 
