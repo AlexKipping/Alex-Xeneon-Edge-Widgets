@@ -6,7 +6,7 @@ Custom iCUE widgets for the Corsair XENEON EDGE.
 | --- | --- |
 | [f1-tracker](f1-tracker/) | Countdown to the next F1 race and driver and constructor championship standings |
 | [badminton-tracker](badminton-tracker/) | BWF World Tour matches for today and tomorrow with results, seeds and a nationality filter, plus a list of ongoing and upcoming tournaments |
-| [spotify](spotify/) | Spotify playback controller with album art, seek, volume, shuffle and repeat. Based on [Cxeify](https://github.com/AlexSch95/cxeify-widget) by AlexSch95 (MIT) |
+| [spotify](spotify/) | Spotify playback controller with album art, seek, volume, shuffle and repeat.
 
 ## Install
 
