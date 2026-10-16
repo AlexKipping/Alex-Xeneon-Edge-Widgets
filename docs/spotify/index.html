@@ -16,73 +16,12 @@
       align-items: center;
       min-height: 100vh;
       margin: 0;
-      padding: 80px 40px 40px;
+      padding: 40px;
     }
 
     .container {
       max-width: 720px;
       width: 100%;
-    }
-
-    /* ── Navbar ──────────────────────────────────────────────────── */
-    .navbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 16px 40px;
-      border-bottom: 1px solid #1a1a1a;
-      background: #0a0a0a;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 999;
-    }
-
-    .navbar-brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      text-decoration: none;
-      color: #ffffff;
-    }
-
-    .navbar-brand img {
-      width: 32px;
-      height: 32px;
-      border-radius: 6px;
-    }
-
-    .navbar-brand span {
-      font-size: 18px;
-      font-weight: 600;
-      letter-spacing: -0.01em;
-    }
-
-    .navbar-links {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .navbar-links a {
-      color: #888888;
-      text-decoration: none;
-      font-size: 14px;
-      font-weight: 500;
-      padding: 8px 16px;
-      border-radius: 8px;
-      transition: all 0.15s ease;
-    }
-
-    .navbar-links a:hover {
-      color: #ffffff;
-      background: #141414;
-    }
-
-    .navbar-links a.active {
-      color: #ffffff;
-      background: #141414;
     }
 
     /* ── Header ──────────────────────────────────────────────────── */
@@ -129,29 +68,6 @@
       font-weight: 400;
       line-height: 1.3;
     }
-
-    .header-badge {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 12px;
-      color: #666666;
-      padding: 6px 14px;
-      border: 1px solid #1a1a1a;
-      border-radius: 8px;
-      white-space: nowrap;
-    }
-
-    .badge-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #333333;
-    }
-
-    .badge-dot.ok { background: #1DB954; box-shadow: 0 0 6px rgba(29,185,84,0.4); }
-    .badge-dot.warn { background: #ffaa00; box-shadow: 0 0 6px rgba(255,170,0,0.3); }
-    .badge-dot.no { background: #ff4444; box-shadow: 0 0 6px rgba(255,68,68,0.3); }
 
     /* ── Card ────────────────────────────────────────────────────── */
     .card {
@@ -576,29 +492,16 @@
 
     /* ── Responsive ──────────────────────────────────────────────── */
     @media (max-width: 600px) {
-      body { padding: 70px 20px 20px; }
-      .navbar { padding: 12px 20px; }
+      body { padding: 20px; }
       .container { max-width: 100%; }
       .card { padding: 20px; }
       .privacy-card { padding: 32px 24px; }
       .privacy-title { font-size: 22px; }
       .header { flex-wrap: wrap; }
-      .header-badge { width: 100%; justify-content: center; }
     }
   </style>
 </head>
 <body>
-  <!-- Navbar -->
-  <nav class="navbar">
-    <a href="index.html" class="navbar-brand">
-      <img src="icon.svg" alt="Spotify" />
-      <span>Spotify</span>
-    </a>
-    <div class="navbar-links">
-      <a href="index.html" class="active">Setup</a>
-    </div>
-  </nav>
-
   <!-- Privacy Notice Overlay -->
   <div id="privacy-overlay">
     <div class="privacy-card">
@@ -642,10 +545,6 @@
         <div class="header-title">Spotify for Xeneon Edge</div>
         <div class="header-subtitle">Setup</div>
       </div>
-      <div class="header-badge" id="badge">
-        <span class="badge-dot no" id="badgeDot"></span>
-        <span id="badgeText">Not started</span>
-      </div>
     </div>
 
     <!-- Step 1: Create Spotify App -->
@@ -665,7 +564,7 @@
         3. Fill in the form:
       </p>
       <p class="instruction" style="padding-left:36px;">
-        • <strong>App name:</strong> <code>Spotify</code>
+        • <strong>App name:</strong> <code>Xeneon Edge</code>
       </p>
       <p class="instruction" style="padding-left:36px;">
         • <strong>App description:</strong> <code>iCUE Widget for Xeneon Edge</code>
@@ -840,14 +739,6 @@
       }
     }
 
-    // ── Badge Update ──────────────────────────────────────────────
-    function setBadge(state, text) {
-      const dot = document.getElementById('badgeDot');
-      const label = document.getElementById('badgeText');
-      dot.className = 'badge-dot ' + state;
-      label.textContent = text;
-    }
-
     // ── Step Number Update ────────────────────────────────────────
     function setStepDone(num) {
       const el = document.getElementById('step' + num + 'Num');
@@ -862,10 +753,7 @@
     if (savedClientId) {
       document.getElementById('clientId').value = savedClientId;
       document.getElementById('authBtn').disabled = false;
-      setBadge('warn', 'Ready to authorize');
       setStepDone(2);
-    } else {
-      setBadge('no', 'Step 1: Create App');
     }
 
     // ── Client ID Input ───────────────────────────────────────────
@@ -874,13 +762,11 @@
       if (val.length > 10) {
         localStorage.setItem('spotify_client_id', val);
         document.getElementById('authBtn').disabled = false;
-        setBadge('warn', 'Ready to authorize');
         setStepDone(2);
         document.getElementById('configMsg').className = 'msg success';
         document.getElementById('configMsg').textContent = '✅ Client ID saved. Proceed to Step 3.';
       } else {
         document.getElementById('authBtn').disabled = true;
-        setBadge('no', 'Enter Client ID');
         document.getElementById('configMsg').className = '';
         document.getElementById('configMsg').textContent = '';
       }
@@ -896,7 +782,6 @@
       if (error) {
         document.getElementById('authMsg').className = 'msg error';
         document.getElementById('authMsg').textContent = '❌ ' + decodeURIComponent(error);
-        setBadge('no', 'Authorization failed');
         return;
       }
       
@@ -905,7 +790,6 @@
         document.getElementById('resultRefreshToken').textContent = refreshToken;
         document.getElementById('step4Card').style.display = 'block';
         document.getElementById('step3Card').style.display = 'none';
-        setBadge('ok', 'Setup complete!');
         setStepDone(3);
         
         // Clean URL
