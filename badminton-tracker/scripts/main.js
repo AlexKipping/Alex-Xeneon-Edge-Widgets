@@ -96,16 +96,27 @@ async function getTournaments() {
 }
 
 // One call covers the whole date range (1 credit per call, not per day)
+// Concurrent callers (e.g. a refresh click during a timer load) share one request
+const inflight = {};
 async function getMatches(code, dateStart, dateEnd, maxAgeMs, force) {
     const key = 'm-' + code + '-' + dateStart + '-' + dateEnd;
     if (!force) {
         const hit = cacheGet(key, maxAgeMs);
         if (hit) return hit.data;
     }
-    const data = await apiGet('get_tournament_matches', { tournament_code: code, date_start: dateStart, date_end: dateEnd });
-    const list = data.matches || [];
-    cacheSet(key, list);
-    return list;
+    if (inflight[key]) return inflight[key];
+    inflight[key] = (async () => {
+        try {
+            console.debug('[badminton] get_tournament_matches', code, dateStart, dateEnd);
+            const data = await apiGet('get_tournament_matches', { tournament_code: code, date_start: dateStart, date_end: dateEnd });
+            const list = data.matches || [];
+            cacheSet(key, list);
+            return list;
+        } finally {
+            delete inflight[key];
+        }
+    })();
+    return inflight[key];
 }
 
 function gameParts(s) {
@@ -185,6 +196,7 @@ function applyProps() {
     }
     updateTabs();
     render();
+    if (started && tickTimer) scheduleNext();   // settings may have changed the refresh schedule
 }
 
 function setView(v) {
@@ -202,15 +214,51 @@ function refreshMs() {
 }
 
 function startTimer() {
-    clearInterval(timer);
-    timer = setInterval(() => loadAll(false), refreshMs());
     // Re-render every minute so the green header turns on when a match starts (no API calls)
     clearInterval(tickTimer);
     tickTimer = setInterval(render, 60000);
+    scheduleNext();
+}
+
+const matchStart = m => new Date(m.time.replace(' ', 'T'));
+
+// Schedules the next automatic load. Normally every refreshMs. With "Refresh optimise" on and a
+// country selected: no refresh while none of that country's matches are active, a refresh at
+// each match's start time, and the normal interval while one is active.
+function scheduleNext() {
+    clearTimeout(timer);
+    let delay = refreshMs();
+    let fresh = false;
+    const nat = prop('nationality', 'ALL');
+    if (prop('smartRefresh', false) === true && nat !== 'ALL') {
+        fresh = true;   // wake-ups are timed on purpose, so bypass the cache
+        const now = Date.now();
+        const open = matches
+            .filter(m => m.status !== 'finished' && m.sides.some(s => s.nats.includes(nat)))
+            .map(m => ({ m, t: matchStart(m).getTime() }))
+            .filter(x => !isNaN(x.t));
+        const active = open.some(x => x.m.status === 'live' || x.t <= now);
+        if (!active) {
+            const next = open.filter(x => x.t > now).map(x => x.t).sort((a, b) => a - b)[0];
+            if (next !== undefined) {
+                delay = next - now;
+            } else {
+                // Nothing known: look again after midnight, when a new day's schedule is out
+                const midnight = new Date(); midnight.setHours(24, 0, 30, 0);
+                delay = midnight - now;
+            }
+        } else {
+            const next = open.filter(x => x.t > now).map(x => x.t).sort((a, b) => a - b)[0];
+            if (next !== undefined) delay = Math.min(delay, next - now);
+        }
+    }
+    // setTimeout overflows above ~24.8 days; delays here are far below that
+    timer = setTimeout(() => loadAll(false, fresh), Math.max(delay, 1000));
 }
 
 // ── Fetch ─────────────────────────────────────────────────────────────────────
-async function loadAll(force) {
+// force: ignore the "no active tournament" pause and the cache; fresh: ignore the cache only
+async function loadAll(force, fresh) {
     spin(true);
     try {
         loadError = null;
@@ -236,8 +284,10 @@ async function loadAll(force) {
         const jobs = tournaments
             .filter(t => t.date_start <= to && t.date_end >= from)
             .map(t => ({ t, start: t.date_start > from ? t.date_start : from, end: t.date_end < to ? t.date_end : to }));
+        // A tournament that has not started yet only needs its schedule once or twice a day
+        const maxAge = j => j.t.date_start > todayStr ? Math.max(refreshMs(), 12 * 3600000) : refreshMs();
         const results = await Promise.allSettled(
-            jobs.map(j => getMatches(j.t.tournament_code, j.start, j.end, refreshMs(), force)
+            jobs.map(j => getMatches(j.t.tournament_code, j.start, j.end, maxAge(j), force || fresh)
                 .then(list => list.map(m => normMatch(m, j.t.tournament_name))))
         );
         const ok = results.filter(r => r.status === 'fulfilled');
@@ -251,6 +301,7 @@ async function loadAll(force) {
         render();
     } finally {
         spin(false);
+        scheduleNext();
     }
 }
 

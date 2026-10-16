@@ -30,6 +30,11 @@
           data-type="slider"
           data-default="180" data-min="15" data-max="720" data-step="15" data-unit-label="'min'" />
 
+    <meta name="x-icue-property" content="smartRefresh"
+          data-label="tr('Refresh optimise')"
+          data-type="switch"
+          data-default="false" />
+
     <meta name="x-icue-property" content="lineColor"
           data-label="tr('Header line color')"
           data-type="color"
@@ -42,7 +47,7 @@
 
     <script type="application/json" id="x-icue-groups">
     [
-        { "title": "tr('Data')", "properties": ["apiKey", "refreshMinutes"] },
+        { "title": "tr('Data')", "properties": ["apiKey", "refreshMinutes", "smartRefresh"] },
         { "title": "tr('Filter')", "properties": ["startView", "nationality"] },
         { "title": "tr('Appearance')", "properties": ["accentColor", "lineColor"] }
     ]
