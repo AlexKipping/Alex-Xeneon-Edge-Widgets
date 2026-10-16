@@ -36,4 +36,4 @@ Requires Spotify Premium. The widget talks to the Spotify Web API directly using
 1. Open the setup page (served from `docs/spotify/` via GitHub Pages) and follow the steps to create a Spotify app and generate a Client ID and refresh token.
 2. Import the widget in iCUE and paste the Client ID and refresh token into its settings.
 
-The widget is based on [Cxeify](https://github.com/AlexSch95/cxeify-widget) by AlexSch95, used under the MIT license (see [spotify/LICENSE](spotify/LICENSE)).
+The widget is based on [Cxeify](https://github.com/AlexSch95/cxeify-widget) by AlexSch95, expanded to fit my needs and wishes. Used under the MIT license (see [spotify/LICENSE](spotify/LICENSE)).
