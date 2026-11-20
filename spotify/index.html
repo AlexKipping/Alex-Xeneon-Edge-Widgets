@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>tr('Spotify')</title>
+  <title>tr('XE Player for Spotify')</title>
   <link rel="icon" href="resources/icon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="styles/main.css" />
 
@@ -11,7 +11,7 @@
   <meta name="x-icue-property" content="clientId" data-label="tr('Spotify Client ID')" data-type="textfield" data-default="''" />
   <meta name="x-icue-property" content="refreshToken" data-label="tr('Spotify Refresh Token')" data-type="textfield" data-default="''" />
   <meta name="x-icue-property" content="setupLink" data-label="tr('Setup page (copy into your browser)')" data-type="textfield" data-default="'https://alexkipping.github.io/Alex-Xeneon-Edge-Widgets/spotify/'" />
-  <meta name="x-icue-property" content="pollingInterval" data-label="tr('Update Interval')" data-type="slider" data-default="3000" data-min="3000" data-max="10000" data-step="500" data-unit-label="'ms'" />
+  <meta name="x-icue-property" content="pollingInterval" data-label="tr('Update Interval')" data-type="slider" data-default="1000" data-min="1000" data-max="10000" data-step="500" data-unit-label="'ms'" />
 
   <meta name="x-icue-property" content="viewMode" data-label="tr('View')" data-type="tab-buttons" data-default="'nowplaying'" data-values="[{'key':'nowplaying','value':'Now Playing'},{'key':'queue','value':'Queue'}]" />
 
@@ -34,7 +34,7 @@
   <script id="x-icue-groups" type="application/json">
   [
     {
-      "title": "tr('Spotify')",
+      "title": "tr('XE Player for Spotify')",
       "properties": ["viewMode", "halfMode", "albumBlur", "clientId", "refreshToken", "setupLink", "pollingInterval"]
     },
     {

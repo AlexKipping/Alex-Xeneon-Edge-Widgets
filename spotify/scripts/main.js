@@ -9,7 +9,7 @@
 const state = {
   clientId: '',
   refreshToken: '',
-  pollingInterval: 3000,
+  pollingInterval: 1000,
   viewMode: 'nowplaying',
   halfMode: false,
   albumBlur: 0,
@@ -340,7 +340,7 @@ function scheduleNextPoll(delay) {
 
 // Compute the current adaptive interval based on state
 function getAdaptiveInterval() {
-  const base = Math.max(state.pollingInterval, 3000);
+  const base = Math.max(state.pollingInterval, 1000);
 
   // If we're in error backoff, keep the current (already increased) interval
   if (consecutiveErrors > 0) {

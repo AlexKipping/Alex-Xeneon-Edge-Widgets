@@ -6,7 +6,7 @@ Custom iCUE widgets for the Corsair XENEON EDGE.
 | --- | --- |
 | [f1-tracker](f1-tracker/) | Countdown to the next F1 race and driver and constructor championship standings |
 | [badminton-tracker](badminton-tracker/) | BWF World Tour matches for today and tomorrow with results, seeds and a nationality filter, plus a list of ongoing and upcoming tournaments |
-| [spotify](spotify/) | Spotify playback controller with album art, seek, volume, shuffle and repeat, plus a queue view of the next 5 songs. Supports Small and Medium sizes.
+| [spotify](spotify/) | XE Player for Spotify: playback controller with album art, seek, volume, shuffle and repeat, plus a queue view of the next 5 songs. Supports Small and Medium sizes.
 
 ## Install
 
@@ -14,7 +14,7 @@ Go to releases. Download .icuewidget file. Import in iCUE
 
 - [Badminton Tracker v1.1.0](https://github.com/AlexKipping/Alex-Xeneon-Edge-Widgets/releases/tag/badminton-tracker-v1.1.0)
 - [F1 Tracker v1.1.0](https://github.com/AlexKipping/Alex-Xeneon-Edge-Widgets/releases/tag/f1-tracker-v1.1.0)
-- [Spotify v1.1.4](https://github.com/AlexKipping/Alex-Xeneon-Edge-Widgets/releases/tag/spotify-v1.1.4)
+- [XE Player for Spotify v1.1.4](https://github.com/AlexKipping/Alex-Xeneon-Edge-Widgets/releases/tag/XE-Player-for-Spotify-v1.1.4)
 
 ## Badminton Tracker setup
 
@@ -30,9 +30,9 @@ The free Parse.bot tier includes 200 credits per month and 5 requests per minute
 
 The data is scraped from bwfbadminton.com, so it is unofficial and shows no live scores.
 
-## Spotify setup
+## XE Player for Spotify setup
 
-Requires Spotify Premium. The widget talks to the Spotify Web API directly using OAuth with PKCE, so each user creates their own Spotify app.
+This is an unofficial widget and is not affiliated with or endorsed by Spotify. Requires Spotify Premium. The widget talks to the Spotify Web API directly using OAuth with PKCE, so each user creates their own Spotify app.
 
 1. Open the [setup page](https://alexkipping.github.io/Alex-Xeneon-Edge-Widgets/spotify/) and follow the steps to create a Spotify app and generate a Client ID and refresh token.
 2. Import the widget in iCUE and paste the Client ID and refresh token into its settings.
