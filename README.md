@@ -14,6 +14,7 @@ Go to releases. Download .icuewidget file. Import in iCUE
 
 - [Badminton Tracker v1.1.0](https://github.com/AlexKipping/Alex-Xeneon-Edge-Widgets/releases/tag/badminton-tracker-v1.1.0)
 - [F1 Tracker v1.1.0](https://github.com/AlexKipping/Alex-Xeneon-Edge-Widgets/releases/tag/f1-tracker-v1.1.0)
+- [Spotify v1.1.4](https://github.com/AlexKipping/Alex-Xeneon-Edge-Widgets/releases/tag/spotify-v1.1.4)
 
 ## Badminton Tracker setup
 
