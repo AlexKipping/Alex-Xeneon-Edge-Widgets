@@ -1,11 +1,44 @@
-@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400&family=Roboto:wght@200&display=swap');
+/* Fonts are bundled so the widget needs no network access to render */
+@font-face {
+  font-family: 'Oswald';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../resources/fonts/oswald-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Oswald';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../resources/fonts/oswald-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 200;
+  font-display: swap;
+  src: url('../resources/fonts/roboto-200-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 200;
+  font-display: swap;
+  src: url('../resources/fonts/roboto-200-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
 
 :root {
   /* ═══ RUNTIME COLORS (set by JS) ═══ */
   --text-color: #ffffff;
   --accent-color: #1DB954;
   --background-color: #121212;
-  --transparency: 60%;
+  --bg-transparency: 0%;
+  --album-blur: 0px;
   --song-info-color: #ffffff;
   --play-btn-color: #1DB954;
   --prev-next-color: #ffffff;
@@ -31,25 +64,51 @@ body {
   display: flex;
   align-items: stretch;
   justify-content: center;
-  background: var(--background-color);
+  background: color-mix(in srgb, var(--background-color) calc(100% - var(--bg-transparency)), transparent);
 }
 
-/* ── ALBUM ART BACKGROUND ────────────────────────────────────── */
+/* ── HALF MODE ───────────────────────────────────────────────────
+   Two stacked widgets share one album cover: the Now Playing widget
+   shows its top half, the Queue widget the bottom half. The cover is
+   sized to the width of one widget and spans both. */
 #album-bg {
-  position: fixed;
-  inset: -30px;
-  background-size: cover;
-  background-position: center;
-  filter: blur(10px) brightness(0.5);
-  transition: background-image 0.6s ease;
-  z-index: 0;
-}
-
-#album-bg-overlay {
+  display: block;
   position: fixed;
   inset: 0;
-  background: color-mix(in srgb, var(--background-color) calc(100% - var(--transparency)), transparent);
-  z-index: 1;
+  z-index: 0;
+  overflow: hidden;
+}
+
+/* Blurred cover, oversized so the blur does not fade at the edges */
+#album-bg::before {
+  content: '';
+  position: absolute;
+  inset: calc(var(--album-blur) * -1.5);
+  background-image: var(--album-art, none);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  filter: blur(var(--album-blur));
+}
+
+#album-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+}
+
+.half-top #album-bg::before,
+.half-bottom #album-bg::before {
+  background-size: 100vw auto;
+}
+
+.half-top #album-bg::before {
+  background-position: calc(var(--album-blur) * 1.5) calc(100vh - 50vw + var(--album-blur) * 1.5);
+}
+
+.half-bottom #album-bg::before {
+  background-position: calc(var(--album-blur) * 1.5) calc(var(--album-blur) * 1.5 - 50vw);
 }
 
 /* ── MAIN CONTENT ────────────────────────────────────────────── */
@@ -124,6 +183,103 @@ body {
   width: 100%;
   height: 100%;
   position: relative;
+}
+
+/* ── QUEUE (default: hidden) ────────────────────────────────── */
+#queue {
+  display: none;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  justify-content: center;
+}
+
+#queue-header {
+  text-align: center;
+  font-family: 'Oswald', var(--font-fallback);
+  opacity: 0.6;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--song-info-color);
+}
+
+/* Scrollable list; each size shows five rows (row height is set per size).
+   Scrolling is by touch drag or mouse wheel, so the scrollbar is hidden. */
+#queue-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  flex: 0 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  scroll-snap-type: y proximity;
+  scrollbar-width: none;
+}
+
+#queue-list::-webkit-scrollbar {
+  display: none;
+}
+
+#queue-list li {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  box-sizing: border-box;
+  scroll-snap-align: start;
+}
+
+.queue-art {
+  width: var(--art-size);
+  height: var(--art-size);
+  flex: 0 0 auto;
+  object-fit: cover;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.08);
+}
+
+/* Title and artist sit on one line; the artist shrinks first */
+.queue-text {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 0.6em;
+  text-align: left;
+}
+
+.queue-title {
+  font-family: 'Oswald', var(--font-fallback);
+  flex: 0 1 auto;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+  color: var(--song-info-color);
+}
+
+.queue-artist {
+  font-family: 'Roboto', var(--font-fallback);
+  font-weight: 200;
+  opacity: 0.8;
+  flex: 0 100 auto;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+  color: var(--song-info-color);
+}
+
+#queue-empty {
+  text-align: center;
+  opacity: 0.6;
+  font-family: 'Oswald', var(--font-fallback);
+  color: var(--song-info-color);
 }
 
 /* ── TRACK INFO ──────────────────────────────────────────────── */
@@ -334,7 +490,7 @@ body {
 /* ══════════════════════════════════════════════════════════════
    ═══  SIZE M  (700px - 999px)  ═══
    ══════════════════════════════════════════════════════════════ */
-@media (min-width: 700px) and (max-width: 999px) {
+@media (min-width: 700px) and (max-width: 999px) and (min-height: 501px) {
   #player {
     display: block;
   }
@@ -448,6 +604,72 @@ body {
     font-size: 20px;
     padding: 0 30px;
   }
+
+  /* 5 rows x 112px = 560px list */
+  #queue { display: flex; padding: 24px 40px; --art-size: 92px; }
+  #queue-header { font-size: 24px; margin-bottom: 10px; }
+  #queue-list { max-height: 560px; }
+  #queue-list li { height: 112px; gap: 24px; padding: 0 8px; }
+  .queue-title { font-size: 42px; }
+  .queue-artist { font-size: 28px; }
+  #queue-empty { font-size: 32px; }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ═══  SIZE S  (840 x 344 tile: width 700-999, height <= 500)  ═══
+   ══════════════════════════════════════════════════════════════ */
+@media (min-width: 700px) and (max-width: 999px) and (max-height: 500px) {
+  #player { display: block; }
+
+  #track-info {
+    position: absolute;
+    left: 0;
+    top: 14px;
+    width: 100%;
+    text-align: center;
+    padding: 0 40px;
+    box-sizing: border-box;
+  }
+  #track-name { font-size: 52px; margin-bottom: 4px; }
+  #track-artist { font-size: 26px; }
+
+  #controls-container {
+    position: absolute;
+    left: 0;
+    top: 134px;
+    width: 100%;
+    height: 130px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #controls { gap: 12px; }
+  .ctrl-btn { width: 68px; height: 68px; }
+  .ctrl-btn svg { width: 34px; height: 34px; }
+  .ctrl-btn-play { width: 96px; height: 96px; }
+  .ctrl-btn-play svg { width: 44px; height: 44px; }
+  #repeat-indicator { font-size: 14px; }
+  #volume-container { display: none; }
+
+  #progress-container {
+    position: absolute;
+    left: 0;
+    top: 276px;
+    width: 840px;
+    padding: 6px 0;
+  }
+  #progress-bar { height: 10px; }
+  #progress-thumb { width: 20px; height: 20px; }
+  #progress-time { margin-top: 2px; font-size: 18px; padding: 0 30px; }
+
+  /* 5 rows x 60px = 300px list */
+  #queue { display: flex; padding: 4px 32px; --art-size: 52px; }
+  #queue-header { font-size: 18px; line-height: 22px; margin-bottom: 2px; }
+  #queue-list { max-height: 300px; }
+  #queue-list li { height: 60px; gap: 16px; padding: 0 6px; }
+  .queue-title { font-size: 30px; line-height: 1.15; }
+  .queue-artist { font-size: 20px; line-height: 1.15; }
+  #queue-empty { font-size: 24px; }
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -580,3 +802,16 @@ body {
   margin-top: 0.5vmin;
   font-size: 1.5vmin;
 }
+
+/* Queue in preview mode */
+.preview-mode #queue {
+  display: flex;
+  padding: 3vmin 4vmin;
+}
+.preview-mode #queue-header { font-size: 2.5vmin; margin-bottom: 0.5vmin; }
+.preview-mode #queue-list { max-height: 70vmin; }
+.preview-mode #queue-list li { height: 14vmin; gap: 2vmin; padding: 0 1vmin; }
+.preview-mode #queue { --art-size: 11.5vmin; }
+.preview-mode .queue-title { font-size: 4.2vmin; }
+.preview-mode .queue-artist { font-size: 2.8vmin; }
+.preview-mode #queue-empty { font-size: 4vmin; }

@@ -10,11 +10,18 @@
   <!-- Widget configuration properties -->
   <meta name="x-icue-property" content="clientId" data-label="tr('Spotify Client ID')" data-type="textfield" data-default="''" />
   <meta name="x-icue-property" content="refreshToken" data-label="tr('Spotify Refresh Token')" data-type="textfield" data-default="''" />
-  <meta name="x-icue-property" content="pollingInterval" data-label="tr('Update Interval')" data-type="slider" data-default="2000" data-min="500" data-max="5000" data-step="100" data-unit-label="'ms'" />
+  <meta name="x-icue-property" content="setupLink" data-label="tr('Setup page (copy into your browser)')" data-type="textfield" data-default="'https://alexkipping.github.io/Alex-Xeneon-Edge-Widgets/spotify/'" />
+  <meta name="x-icue-property" content="pollingInterval" data-label="tr('Update Interval')" data-type="slider" data-default="3000" data-min="3000" data-max="10000" data-step="500" data-unit-label="'ms'" />
+
+  <meta name="x-icue-property" content="viewMode" data-label="tr('View')" data-type="tab-buttons" data-default="'nowplaying'" data-values="[{'key':'nowplaying','value':'Now Playing'},{'key':'queue','value':'Queue'}]" />
+
+  <meta name="x-icue-property" content="halfMode" data-label="tr('Half mode (top: Now Playing, bottom: Queue)')" data-type="switch" data-default="false" />
+
+  <meta name="x-icue-property" content="albumBlur" data-label="tr('Album Blur')" data-type="slider" data-default="0" data-min="0" data-max="50" data-step="1" data-unit-label="'px'" />
 
   <!-- Personalization properties -->
   <meta name="x-icue-property" content="backgroundColor" data-label="tr('Background Color')" data-type="color" data-default="'#121212'" />
-  <meta name="x-icue-property" content="transparency" data-label="tr('Albumcover Backdrop Transparency')" data-type="slider" data-default="60" data-min="0" data-max="100" data-step="1" data-unit-label="'%'" />
+  <meta name="x-icue-property" content="bgTransparency" data-label="tr('Background Transparency')" data-type="slider" data-default="0" data-min="0" data-max="100" data-step="1" data-unit-label="'%'" />
 
   <!-- Color customization properties -->
   <meta name="x-icue-property" content="songInfoColor" data-label="tr('Song Info Color')" data-type="color" data-default="'#ffffff'" />
@@ -28,19 +35,18 @@
   [
     {
       "title": "tr('Spotify')",
-      "properties": ["clientId", "refreshToken", "pollingInterval"]
+      "properties": ["viewMode", "halfMode", "albumBlur", "clientId", "refreshToken", "setupLink", "pollingInterval"]
     },
     {
       "title": "tr('Custom Style')",
-      "properties": ["backgroundColor", "transparency", "songInfoColor", "playBtnColor", "prevNextColor", "activeBtnColor", "barFillColor"]
+      "properties": ["backgroundColor", "bgTransparency", "songInfoColor", "playBtnColor", "prevNextColor", "activeBtnColor", "barFillColor"]
     }
   ]
   </script>
 </head>
 <body>
-  <!-- Blurred album art background -->
+  <!-- Album art background (full cover by default, split across two widgets in half mode) -->
   <div id="album-bg"></div>
-  <div id="album-bg-overlay"></div>
 
   <!-- Main content -->
   <main id="content">
@@ -61,6 +67,7 @@
       </div>
       <h2>Connection Error</h2>
       <p>Check your internet connection and Spotify credentials.</p>
+      <p id="offline-detail" style="font-size:20px;opacity:0.9;max-width:90%;word-break:break-word;"></p>
     </div>
 
     <!-- No device state -->
@@ -162,6 +169,13 @@
       </div>
     </div>
 
+    <!-- Queue UI -->
+    <div id="queue" hidden>
+      <div id="queue-header">Up Next:</div>
+      <ol id="queue-list"></ol>
+      <div id="queue-empty" hidden>Queue is empty</div>
+    </div>
+
     <!-- Size not supported message (shown for S and XL) -->
     <div id="size-unavailable" class="state-overlay" hidden>
       <div class="offline-icon">
@@ -172,7 +186,7 @@
         </svg>
       </div>
       <h2>Size Not Supported</h2>
-      <p>This widget size is not available. Please use Medium.</p>
+      <p>This widget size is not available. Please use Small or Medium.</p>
     </div>
   </main>
 

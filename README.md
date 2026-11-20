@@ -6,7 +6,7 @@ Custom iCUE widgets for the Corsair XENEON EDGE.
 | --- | --- |
 | [f1-tracker](f1-tracker/) | Countdown to the next F1 race and driver and constructor championship standings |
 | [badminton-tracker](badminton-tracker/) | BWF World Tour matches for today and tomorrow with results, seeds and a nationality filter, plus a list of ongoing and upcoming tournaments |
-| [spotify](spotify/) | Spotify playback controller with album art, seek, volume, shuffle and repeat.
+| [spotify](spotify/) | Spotify playback controller with album art, seek, volume, shuffle and repeat, plus a queue view of the next 5 songs. Supports Small and Medium sizes.
 
 ## Install
 
@@ -33,7 +33,7 @@ The data is scraped from bwfbadminton.com, so it is unofficial and shows no live
 
 Requires Spotify Premium. The widget talks to the Spotify Web API directly using OAuth with PKCE, so each user creates their own Spotify app.
 
-1. Open the setup page (served from `docs/spotify/` via GitHub Pages) and follow the steps to create a Spotify app and generate a Client ID and refresh token.
+1. Open the [setup page](https://alexkipping.github.io/Alex-Xeneon-Edge-Widgets/spotify/) and follow the steps to create a Spotify app and generate a Client ID and refresh token.
 2. Import the widget in iCUE and paste the Client ID and refresh token into its settings.
 
 The widget is based on [Cxeify](https://github.com/AlexSch95/cxeify-widget) by AlexSch95, expanded to fit my needs and wishes. Used under the MIT license (see [spotify/LICENSE](spotify/LICENSE)).
