@@ -3,7 +3,7 @@
   "id": "com.alex.spotify",
   "name": "XE Player for Spotify",
   "description": "Unofficial Spotify player and queue for Xeneon Edge displays",
-  "version": "1.1.4",
+  "version": "1.0.0",
   "preview_icon": "resources/icon.svg",
   "min_app_version": "5.47",
   "min_framework_version": "1.4.0",
