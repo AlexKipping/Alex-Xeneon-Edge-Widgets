@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>tr('XE Sports Tracker')</title>
+    <link rel="icon" href="resources/icon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles/main.css" />
+    <link rel="stylesheet" href="styles/f1.css" />
+    <link rel="stylesheet" href="styles/badminton.css" />
+
+    <!-- ===== iCUE settings panel =====
+         To add a sport: add an "enable<Sport>" switch and its own settings here, add the group below,
+         add the sport to "startSport", then add a section and script (see README). -->
+
+    <!-- General -->
+    <meta name="x-icue-property" content="startSport"
+          data-label="tr('Start sport')" data-type="tab-buttons"
+          data-default="'f1'"
+          data-values="[{'key':'f1','value':'F1'},{'key':'badminton','value':'Badminton'}]" />
+
+    <meta name="x-icue-property" content="autoSwitch"
+          data-label="tr('Switch sport after inactivity')" data-type="switch" data-default="true" />
+
+    <meta name="x-icue-property" content="idleSeconds"
+          data-label="tr('Inactivity time')" data-type="slider"
+          data-default="30" data-min="10" data-max="300" data-step="5" data-unit-label="'s'" />
+
+    <meta name="x-icue-property" content="textColor"
+          data-label="tr('Text color')" data-type="color" data-default="'#FFFFFF'" />
+
+    <!-- Sports on/off -->
+    <meta name="x-icue-property" content="enableF1"
+          data-label="tr('Show F1')" data-type="switch" data-default="true" />
+
+    <meta name="x-icue-property" content="enableBadminton"
+          data-label="tr('Show Badminton')" data-type="switch" data-default="true" />
+
+    <!-- F1 -->
+    <meta name="x-icue-property" content="f1StartView"
+          data-label="tr('F1 start view')" data-type="tab-buttons"
+          data-default="'race'"
+          data-values="[{'key':'race','value':'Race'},{'key':'drivers','value':'Drivers'},{'key':'teams','value':'Teams'}]" />
+
+    <meta name="x-icue-property" content="f1ShowPictures"
+          data-label="tr('F1 show pictures')" data-type="switch" data-default="true" />
+
+    <meta name="x-icue-property" content="f1AccentColor"
+          data-label="tr('F1 accent color')" data-type="color" data-default="'#e10600'" />
+
+    <!-- Badminton -->
+    <meta name="x-icue-property" content="badmintonApiKey"
+          data-label="tr('Badminton Parse.bot API key')" data-type="textfield" data-default="''" />
+
+    <meta name="x-icue-property" content="badmintonStartView"
+          data-label="tr('Badminton start view')" data-type="tab-buttons"
+          data-default="'matches'"
+          data-values="[{'key':'matches','value':'Matches'},{'key':'tournaments','value':'Tournaments'}]" />
+
+    <meta name="x-icue-property" content="badmintonNationality"
+          data-label="tr('Badminton nationality')" data-type="combobox"
+          data-default="'ALL'"
+          data-values="[{'key':'ALL','value':'All countries'},{'key':'AUS','value':'Australia'},{'key':'AUT','value':'Austria'},{'key':'BEL','value':'Belgium'},{'key':'BRA','value':'Brazil'},{'key':'BUL','value':'Bulgaria'},{'key':'CAN','value':'Canada'},{'key':'CHN','value':'China'},{'key':'TPE','value':'Chinese Taipei'},{'key':'CZE','value':'Czechia'},{'key':'DEN','value':'Denmark'},{'key':'ENG','value':'England'},{'key':'EST','value':'Estonia'},{'key':'FIN','value':'Finland'},{'key':'FRA','value':'France'},{'key':'GER','value':'Germany'},{'key':'HKG','value':'Hong Kong China'},{'key':'HUN','value':'Hungary'},{'key':'ISL','value':'Iceland'},{'key':'IND','value':'India'},{'key':'INA','value':'Indonesia'},{'key':'IRL','value':'Ireland'},{'key':'ITA','value':'Italy'},{'key':'JPN','value':'Japan'},{'key':'KOR','value':'Korea'},{'key':'MAC','value':'Macau China'},{'key':'MAS','value':'Malaysia'},{'key':'MEX','value':'Mexico'},{'key':'NED','value':'Netherlands'},{'key':'NZL','value':'New Zealand'},{'key':'NOR','value':'Norway'},{'key':'PAK','value':'Pakistan'},{'key':'PHI','value':'Philippines'},{'key':'POL','value':'Poland'},{'key':'POR','value':'Portugal'},{'key':'SCO','value':'Scotland'},{'key':'SGP','value':'Singapore'},{'key':'ESP','value':'Spain'},{'key':'SRI','value':'Sri Lanka'},{'key':'SWE','value':'Sweden'},{'key':'SUI','value':'Switzerland'},{'key':'THA','value':'Thailand'},{'key':'TUR','value':'Turkiye'},{'key':'USA','value':'USA'},{'key':'UKR','value':'Ukraine'},{'key':'VIE','value':'Vietnam'},{'key':'WAL','value':'Wales'}]" />
+
+    <meta name="x-icue-property" content="badmintonRefreshMinutes"
+          data-label="tr('Badminton refresh every (min)')" data-type="slider"
+          data-default="180" data-min="15" data-max="720" data-step="15" data-unit-label="'min'" />
+
+    <meta name="x-icue-property" content="badmintonSmartRefresh"
+          data-label="tr('Badminton refresh optimise')" data-type="switch" data-default="false" />
+
+    <meta name="x-icue-property" content="badmintonAccentColor"
+          data-label="tr('Badminton accent color')" data-type="color" data-default="'#4f8ef7'" />
+
+    <script type="application/json" id="x-icue-groups">
+    [
+        { "title": "tr('General')", "properties": ["startSport", "autoSwitch", "idleSeconds", "textColor",
+            "enableF1", "enableBadminton",
+            "f1StartView", "f1ShowPictures", "f1AccentColor",
+            "badmintonApiKey", "badmintonStartView", "badmintonNationality", "badmintonRefreshMinutes", "badmintonSmartRefresh", "badmintonAccentColor"] }
+    ]
+    </script>
+</head>
+<body>
+
+<header>
+    <nav id="sport-tabs" aria-label="Sport"></nav>
+    <div id="sport-slot"></div>
+</header>
+
+<div id="sports">
+
+    <!-- ===== F1 ===== -->
+    <section class="sport" id="sport-f1">
+        <div class="sport-controls" id="f1-controls">
+            <nav class="tabs" aria-label="View">
+                <button class="tab active" data-view="race">Next Race</button>
+                <button class="tab" data-view="drivers">Drivers</button>
+                <button class="tab" data-view="teams">Teams</button>
+            </nav>
+            <div id="f1-round" class="round-pill">--</div>
+        </div>
+
+        <div id="f1-main">
+            <div id="f1-view-race" class="view active">
+                <div id="f1-loading" class="message">Initializing Telemetry...</div>
+
+                <div id="f1-pre-race">
+                    <div class="race-head">
+                        <div id="f1-race-name">Loading...</div>
+                        <div id="f1-race-loc">Loading...</div>
+                        <div id="f1-race-date"></div>
+                    </div>
+
+                    <div id="f1-track-container">
+                        <svg id="f1-track-svg" viewBox="14.5 14.5 71 71" preserveAspectRatio="xMidYMid meet">
+                            <path id="f1-track-path" d="" />
+                        </svg>
+                        <div id="f1-live-box">
+                            <div class="live-tag">Race in Progress</div>
+                            <div class="lap-count">LAP <span id="f1-cur-lap">1</span>/<span id="f1-tot-lap">--</span></div>
+                            <div class="lap-sub">Estimated</div>
+                        </div>
+                    </div>
+
+                    <div class="timer-row">
+                        <div class="t-unit"><span class="t-val" id="f1-d">0</span><span class="t-label">D</span></div>
+                        <div class="t-unit"><span class="t-val" id="f1-h">0</span><span class="t-label">H</span></div>
+                        <div class="t-unit"><span class="t-val" id="f1-m">0</span><span class="t-label">M</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="f1-view-standings" class="view">
+                <div class="st-head">
+                    <div class="st-title" id="f1-st-title">Drivers' Championship</div>
+                    <div class="st-sub" id="f1-st-sub"></div>
+                </div>
+                <div id="f1-st-list"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== Badminton ===== -->
+    <section class="sport" id="sport-badminton">
+        <div class="sport-controls" id="bt-controls">
+            <nav class="tabs" aria-label="View">
+                <button class="tab active" data-view="matches">Matches</button>
+                <button class="tab" data-view="tournaments">Tournaments</button>
+            </nav>
+            <button id="bt-refresh-btn" class="icon-btn" title="Refresh"><span>&#8635;</span></button>
+        </div>
+
+        <main>
+            <div id="bt-upcoming-section" class="section">
+                <div class="section-label" id="bt-list-label">Active / Upcoming</div>
+                <div id="bt-upcoming-list" class="list">
+                    <div class="state-msg loading">
+                        <div class="spinner"></div>Loading matches...
+                    </div>
+                </div>
+            </div>
+
+            <div id="bt-tomorrow-section" class="section hidden">
+                <div class="section-label" id="bt-tomorrow-label">Tomorrow</div>
+                <div id="bt-tomorrow-list" class="list"></div>
+            </div>
+            <div id="bt-results-section" class="section hidden">
+                <div class="section-label" id="bt-results-label">Results</div>
+                <div id="bt-results-list" class="list"></div>
+            </div>
+        </main>
+
+        <footer>
+            <span id="bt-updated"></span>
+        </footer>
+    </section>
+
+</div>
+
+<script src="scripts/core.js"></script>
+<script src="scripts/sports/f1.js"></script>
+<script src="scripts/sports/badminton.js"></script>
+<script src="scripts/app.js"></script>
+<script>
+    icueEvents = {
+        onICUEInitialized: Shell.start,
+        onDataUpdated: Shell.applyProps
+    };
+
+    // In iCUE the flag is injected before this script runs. Outside iCUE (browser preview) start directly.
+    if (typeof iCUE_initialized === 'undefined' || iCUE_initialized) Shell.start();
+</script>
+</body>
+</html>

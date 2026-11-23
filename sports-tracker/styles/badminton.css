@@ -1,0 +1,135 @@
+/* Badminton (scoped to #sport-badminton) */
+#sport-badminton main { flex: 1; min-height: 0; overflow-y: auto; padding: 0 0.9rem 0.5rem;
+}
+
+#sport-badminton .section { margin-bottom: 0.6rem;
+}
+
+#sport-badminton .section-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    margin-bottom: 0.3rem;
+}
+
+#sport-badminton .hidden { display: none !important;
+}
+
+#sport-badminton .list { display: flex; flex-direction: column; gap: 0.5rem;
+}
+
+#sport-badminton .row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.55rem 0.9rem;
+}
+
+#sport-badminton .meta { display: flex; align-items: baseline; gap: 0.8rem; min-width: 0;
+}
+
+#sport-badminton .time { color: var(--accent); font-weight: 700; white-space: nowrap; flex-shrink: 0;
+}
+
+#sport-badminton .row.upcoming { border-left: 4px solid var(--c-upcoming) !important;
+}
+
+#sport-badminton .row.upcoming .time { color: var(--c-upcoming) !important;
+}
+
+#sport-badminton .row.done { border-left: 4px solid var(--c-done) !important;
+}
+
+#sport-badminton .row.done .time { color: var(--c-done) !important;
+}
+
+#sport-badminton .row.active { border-left: 4px solid var(--c-active) !important;
+}
+
+#sport-badminton .row.active .time { color: var(--c-active) !important;
+}
+
+#sport-badminton .event {
+    flex: 1; min-width: 0;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    text-align: right;
+}
+
+#sport-badminton .side { display: flex; align-items: center; gap: 0.6rem; min-width: 0;
+}
+
+#sport-badminton .cc { flex: 0 0 9.5rem; display: flex; align-items: center; gap: 0.45rem; min-width: 0; font-size: 0.85rem; color: var(--text-muted); white-space: nowrap;
+}
+
+#sport-badminton .cctext { overflow: hidden; text-overflow: ellipsis;
+}
+
+#sport-badminton .flag { width: 1.5rem; height: 1rem; object-fit: contain; border-radius: 2px; flex-shrink: 0;
+}
+
+#sport-badminton .name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500;
+}
+
+#sport-badminton .seed { flex-shrink: 0; margin-right: -0.3rem; font-size: 0.85rem; font-weight: 700; color: var(--text-muted);
+}
+
+#sport-badminton .cc.win { color: var(--c-active) !important; font-weight: 700;
+}
+
+#sport-badminton .name.sub { color: var(--text-muted); font-size: 0.9rem; font-weight: 400;
+}
+
+#sport-badminton .name.strong { font-weight: 700;
+}
+
+#sport-badminton .name.win { font-weight: 700; color: var(--c-active) !important;
+}
+
+#sport-badminton .scores { display: flex; gap: 0.25rem; flex-shrink: 0;
+}
+
+#sport-badminton .set {
+    min-width: 1.9rem; text-align: center;
+    background: var(--surface-raised);
+    border-radius: 0.3rem;
+    padding: 0 0.3rem;
+    font-variant-numeric: tabular-nums;
+}
+
+#sport-badminton .set.won { background: rgba(34, 197, 94, 0.22) !important; color: var(--c-active) !important; font-weight: 700;
+}
+
+#sport-badminton .state-msg {
+    color: var(--text-muted);
+    padding: 1rem 0.5rem;
+    display: flex; align-items: center; gap: 0.6rem;
+}
+
+#sport-badminton .state-msg.error { color: #f87171;
+}
+
+#sport-badminton .state-msg.empty { justify-content: center;
+}
+
+#sport-badminton .spinner {
+    width: 1rem; height: 1rem;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    flex-shrink: 0;
+}
+
+#sport-badminton footer {
+    padding: 0.35rem 0.9rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    flex-shrink: 0;
+}

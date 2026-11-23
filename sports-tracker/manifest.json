@@ -1,0 +1,43 @@
+{
+	"author": "Alex",
+	"id": "com.alex.xe-sports-tracker",
+	"name": "XE Sports Tracker",
+	"description": "F1 race countdown and standings plus BWF badminton matches in one widget. Switch sport by touch, or let it rotate after inactivity.",
+	"version": "1.0.0",
+	"preview_icon": "resources/icon.svg",
+	"min_app_version": "5.47",
+	"min_framework_version": "1.4.0",
+	"os": [
+		{
+			"platform": "windows"
+		}
+	],
+	"supported_devices": [
+		{
+			"type": "dashboard_lcd"
+		}
+	],
+	"interactive": true,
+	"permissions": [
+		{
+			"type": "url",
+			"domain": "jolpi.ca"
+		},
+		{
+			"type": "url",
+			"domain": "githubusercontent.com"
+		},
+		{
+			"type": "url",
+			"domain": "wikipedia.org"
+		},
+		{
+			"type": "url",
+			"domain": "wikimedia.org"
+		},
+		{
+			"type": "url",
+			"domain": "api.parse.bot"
+		}
+	]
+}

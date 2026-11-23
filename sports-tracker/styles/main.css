@@ -1,0 +1,103 @@
+:root {
+    --accent: #e10600;          /* set by the shell to the accent of the sport on screen */
+    --accent-dim: rgba(225, 6, 0, 0.15);
+    --text-main: #ffffff;
+    --text: #ffffff;
+    --text-sub: #a4a4ac;
+    --text-muted: #9aa2b8;
+    --neon: #00f2ff;
+    --row-bg: rgba(0, 0, 0, 0.38);
+    --surface: rgba(24, 27, 36, 0.85);
+    --surface-raised: rgba(255, 255, 255, 0.08);
+    --border: rgba(255, 255, 255, 0.12);
+    --c-upcoming: #3b82f6;
+    --c-done: #ef4444;
+    --c-active: #22c55e;
+    --radius: 0.7rem;
+    --font-stack: "Bahnschrift", "Segoe UI", "Arial Narrow", Arial, sans-serif;
+    --tab-font: clamp(11px, min(3.6vh, 2.2vw), 20px);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* The badminton view scales with rem, so the root size follows the widget height */
+html {
+    width: 100%; height: 100%;
+    background: transparent;
+    font-size: clamp(11px, 3.2vh, 28px);
+}
+
+body {
+    width: 100%; height: 100%;
+    background: transparent;
+    color: var(--text-main);
+    font-family: var(--font-stack);
+    font-size: 1rem;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+    user-select: none;
+}
+
+[hidden] { display: none !important; }
+
+/* --- Shared header: sport switcher on the left, the active sport's own controls on the right --- */
+header {
+    padding: 1.6vh 3vw;
+    display: flex; justify-content: space-between; align-items: center; gap: 16px;
+    border-bottom: 2px solid var(--accent);
+    flex-shrink: 0;
+    position: relative; z-index: 10;
+}
+
+#sport-tabs { display: flex; gap: clamp(10px, 2vw, 28px); min-width: 0; }
+.sport-tab {
+    font-family: inherit; font-size: clamp(18px, 6vh, 34px);
+    font-weight: 900; font-style: italic; letter-spacing: -1px;
+    color: var(--text-main); background: none; border: 0; border-bottom: 3px solid transparent;
+    opacity: 0.45; padding: 0 2px; cursor: pointer; white-space: nowrap;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+    -webkit-tap-highlight-color: transparent;
+}
+.sport-tab.active { opacity: 1; border-bottom-color: var(--accent); }
+
+#sport-slot { display: flex; align-items: center; min-width: 0; }
+.sport-controls { display: flex; align-items: center; gap: 12px; }
+
+.tabs { display: flex; gap: 6px; flex-shrink: 0; }
+.tab {
+    font-family: inherit; font-size: var(--tab-font); font-weight: 700;
+    color: var(--text-main); background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.25); border-radius: 3px;
+    padding: 0.9vh 1.3vw; min-height: 36px; white-space: nowrap; cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+.tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+.round-pill {
+    font-size: clamp(10px, 2.8vh, 16px); font-weight: 700;
+    background: #fff; color: #000;
+    padding: 2px 8px; border-radius: 2px; text-transform: uppercase; letter-spacing: 1px;
+    min-width: 48px; text-align: center;
+}
+
+.icon-btn {
+    font-family: inherit; font-size: clamp(11px, 3.6vh, 20px); font-weight: 700;
+    color: var(--text-main); background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.25); border-radius: 3px;
+    padding: 0.9vh 1.6vw; min-height: 36px; min-width: 36px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+}
+.icon-btn:hover { color: var(--accent); border-color: var(--accent); }
+.icon-btn span { display: inline-block; line-height: 1; }
+.icon-btn span.spinning { animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* --- Sport sections: only the active one is shown --- */
+#sports { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; position: relative; z-index: 10; }
+.sport { display: none; flex: 1 1 auto; min-height: 0; flex-direction: column; }
+.sport.active { display: flex; animation: sport-in 0.25s ease-out; }
+/* The controls sit in the section only while it is hidden, so they never take up room there */
+.sport > .sport-controls { display: none; }
+@keyframes sport-in { from { opacity: 0; } to { opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) { .sport.active { animation: none; } }

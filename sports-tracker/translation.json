@@ -1,0 +1,20 @@
+{
+  "widget_name": "XE Sports Tracker",
+  "Start sport": "Start sport",
+  "Switch sport after inactivity": "Switch sport after inactivity",
+  "Inactivity time": "Inactivity time",
+  "Text color": "Text color",
+  "Show F1": "Show F1",
+  "Show Badminton": "Show Badminton",
+  "F1 start view": "F1 start view",
+  "F1 show pictures": "F1 show pictures",
+  "F1 accent color": "F1 accent color",
+  "Badminton Parse.bot API key": "Badminton Parse.bot API key",
+  "Badminton start view": "Badminton start view",
+  "Badminton nationality": "Badminton nationality",
+  "Badminton refresh every (min)": "Badminton refresh every (min)",
+  "Badminton refresh optimise": "Badminton refresh optimise",
+  "Badminton accent color": "Badminton accent color",
+  "XE Sports Tracker": "XE Sports Tracker",
+  "General": "General"
+}

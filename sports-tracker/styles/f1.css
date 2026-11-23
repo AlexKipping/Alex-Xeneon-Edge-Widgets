@@ -1,0 +1,226 @@
+/* F1 (scoped to #sport-f1) */
+
+#sport-f1 #f1-track-container {
+    position: relative;
+    flex: 1 1 auto; min-height: 0; width: 100%;
+    display: flex; justify-content: center; align-items: center;
+    pointer-events: none;
+}
+
+#sport-f1 #f1-track-svg {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    fill: none;
+    stroke: var(--neon);
+    stroke-width: 4px;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 0 5px var(--neon)) drop-shadow(0 0 15px rgba(0, 242, 255, 0.4));
+    animation: pulsePath 4s ease-in-out infinite;
+}
+
+#sport-f1 #f1-track-path { vector-effect: non-scaling-stroke;
+}
+
+@keyframes pulsePath {
+    0% { opacity: 0.75; }
+    50% { opacity: 1; }
+    100% { opacity: 0.75; }
+}
+
+#sport-f1 #f1-main {
+    flex: 1 1 auto; min-height: 0;
+    z-index: 10; display: flex; flex-direction: column;
+    position: relative;
+}
+
+#sport-f1 .view { display: none; flex: 1 1 auto; min-height: 0;
+}
+
+#sport-f1 .view.active { display: flex;
+}
+
+#sport-f1 #f1-view-race {
+    flex-direction: column;
+    align-items: center; justify-content: center; text-align: center;
+    padding: 0.6vh 3vw 0.8vh;
+    overflow: hidden;
+}
+
+#sport-f1 #f1-pre-race { display: none; flex-direction: column; align-items: center; justify-content: space-between; flex: 1 1 auto; width: 100%;
+}
+
+#sport-f1 #f1-race-name {
+    font-size: clamp(20px, 9vh, 72px); font-weight: 900; text-transform: uppercase;
+    font-style: italic; line-height: 1; margin-bottom: 1vh;
+    text-shadow: 0 4px 10px rgba(0,0,0,0.8);
+}
+
+#sport-f1 #f1-race-loc,
+#sport-f1 #f1-race-date {
+    font-size: clamp(11px, 3.4vh, 22px); color: #e4e4e8; text-transform: uppercase;
+    letter-spacing: 2px; font-weight: 600;
+    background: rgba(0,0,0,0.5); padding: 4px 10px; border-radius: 4px;
+    display: block; width: fit-content; margin-left: auto; margin-right: auto;
+}
+
+#sport-f1 #f1-race-date { margin-top: 0.8vh; color: var(--text-sub);
+}
+
+#sport-f1 #f1-race-date:empty { display: none;
+}
+
+#sport-f1 .timer-row { display: flex; gap: 2.5vw; margin-top: 0; align-items: baseline;
+}
+
+#sport-f1 .t-unit { display: flex; align-items: baseline; gap: 0.5vh;
+}
+
+#sport-f1 .t-val {
+    font-size: clamp(18px, 7.5vh, 56px); font-weight: 700; font-variant-numeric: tabular-nums;
+    line-height: 1; text-shadow: 0 0 10px rgba(255,255,255,0.3), 0 2px 8px rgba(0,0,0,0.7);
+}
+
+#sport-f1 .t-label { font-size: clamp(18px, 7.5vh, 56px); line-height: 1; color: var(--accent); font-weight: 700; text-shadow: 0 0 10px rgba(255,255,255,0.3), 0 2px 8px rgba(0,0,0,0.7);
+}
+
+#sport-f1 #f1-live-box { display: none; flex-direction: column; align-items: center; position: absolute; inset: 0; justify-content: center;
+}
+
+#sport-f1 #f1-pre-race.live .race-head,
+#sport-f1 #f1-pre-race.live .timer-row { display: none;
+}
+
+#sport-f1 .live-tag {
+    background: var(--accent); color: #fff; font-size: clamp(11px, 3.4vh, 20px); font-weight: 900;
+    padding: 4px 12px; border-radius: 2px; animation: pulse 1s infinite; margin-bottom: 1.6vh;
+    text-transform: uppercase;
+}
+
+#sport-f1 .lap-count { font-size: clamp(36px, 16vh, 120px); font-weight: 900; font-style: italic; line-height: 0.9; text-shadow: 0 2px 8px rgba(0,0,0,0.7);
+}
+
+#sport-f1 .lap-sub { font-size: clamp(10px, 2.8vh, 16px); color: var(--text-sub); letter-spacing: 2px; text-transform: uppercase; margin-top: 0.8vh;
+}
+
+#sport-f1 .message { font-size: clamp(12px, 3.6vh, 20px); color: var(--text-sub); text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+}
+
+#sport-f1 #f1-view-standings { flex-direction: column; padding: 1.2vh 3vw 1.6vh;
+}
+
+#sport-f1 .st-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 1vh; flex-shrink: 0; gap: 12px;
+}
+
+#sport-f1 .st-title { font-size: clamp(14px, 4.6vh, 28px); font-weight: 900; font-style: italic; text-shadow: 0 2px 8px rgba(0,0,0,0.7);
+}
+
+#sport-f1 .st-sub { font-size: clamp(10px, 2.8vh, 16px); color: var(--text-sub); letter-spacing: 1px; text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+}
+
+#sport-f1 #f1-st-list {
+    flex: 1 1 auto; min-height: 0;
+    display: grid;
+    grid-auto-flow: row;
+    gap: 6px;
+    align-content: safe center;
+    overflow-y: auto;
+    scrollbar-width: none;
+}
+
+#sport-f1 #f1-st-list::-webkit-scrollbar { display: none;
+}
+
+#sport-f1 #f1-st-list > .message { grid-column: 1 / -1; align-self: center; text-align: center;
+}
+
+#sport-f1 .row {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--row-bg);
+    border-left: 4px solid var(--tc, #666);
+    border-radius: 2px;
+    padding: 0 12px 0 8px;
+    min-width: 0;
+    height: var(--rh, 40px);
+}
+
+#sport-f1 .row .pos {
+    width: 1.6em; flex: 0 0 auto; text-align: right;
+    font-size: clamp(14px, calc(var(--rh, 40px) * 0.4), 44px);
+    font-weight: 900; font-style: italic; font-variant-numeric: tabular-nums;
+}
+
+#sport-f1 .row.p1 .pos { color: var(--accent);
+}
+
+#sport-f1 .row .who { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; justify-content: center; line-height: 1.1;
+}
+
+#sport-f1 .row .nm { font-size: clamp(11px, calc(var(--rh, 40px) * 0.3), 32px); font-weight: 700; overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;
+}
+
+#sport-f1 .row .tm { font-size: clamp(10px, calc(var(--rh, 40px) * 0.2), 18px); color: var(--text-sub); overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;
+}
+
+#sport-f1 .row .pts { flex: 0 0 auto; display: flex; flex-direction: column; align-items: flex-end; line-height: 1.1; font-size: clamp(13px, calc(var(--rh, 40px) * 0.34), 36px); font-weight: 700; font-variant-numeric: tabular-nums;
+}
+
+#sport-f1 .row .pts small { font-size: 0.55em; color: var(--text-sub); font-weight: 600; margin-left: 3px;
+}
+
+#sport-f1 .row .delta { display: flex; gap: 8px; font-size: 0.55em; font-weight: 700; margin-top: 2px;
+}
+
+#sport-f1 .row .gain,
+#sport-f1 .row .mv.up { color: #4cd964;
+}
+
+#sport-f1 .row .gain.zero,
+#sport-f1 .row .mv.same { color: var(--text-sub);
+}
+
+#sport-f1 .row .mv.down { color: #ff453a;
+}
+
+#sport-f1 #f1-st-list.compact .tm { display: none;
+}
+
+#sport-f1 #f1-st-list.tight .delta { display: none;
+}
+
+#sport-f1 #f1-st-list.tight .row { gap: 6px; padding: 0 8px 0 6px;
+}
+
+#sport-f1 #f1-st-list.tight .pts small { display: none;
+}
+
+#sport-f1 .pic {
+    flex: 0 0 auto;
+    width: var(--ps, calc(var(--rh, 40px) - 10px)); height: var(--ps, calc(var(--rh, 40px) - 10px));
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--tc, #666) 55%, #000); border: 2px solid var(--tc, #666);
+    overflow: hidden; display: flex; align-items: center; justify-content: center;
+    font-size: clamp(9px, calc(var(--rh, 40px) * 0.24), 15px); font-weight: 700; color: var(--text-sub);
+}
+
+#sport-f1 .pic img { width: 100%; height: 100%; object-fit: cover; object-position: center 15%; display: block;
+}
+
+#sport-f1 .pic.logo { background: var(--tb, #444); padding: 0; color: #fff;
+}
+
+#sport-f1 .pic.logo img { object-fit: contain; object-position: center; transform: scale(1);
+}
+
+#sport-f1 .pic.logo img.mono { filter: brightness(0) invert(1); padding: 18%; transform: none;
+}
+
+#sport-f1 #f1-st-list.no-pics .pic { display: none;
+}
+
+@keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+#sport-f1 #f1-track-svg,
+#sport-f1 .live-tag { animation: none;
+}
+}
